@@ -1,0 +1,21 @@
+# Configuração de deploy da Netlify
+# O app fica na subpasta app/ (monorepo simples).
+
+[build]
+  base = "app"                # roda o build a partir de app/
+  command = "npm run build"   # tsc --noEmit && vite build
+  publish = "dist"            # saída relativa ao base -> app/dist
+
+[build.environment]
+  NODE_VERSION = "20"
+
+# As variáveis abaixo devem ser definidas no painel da Netlify
+# (Site settings -> Environment variables), NÃO aqui:
+#   VITE_SUPABASE_URL      = https://svyegfkpzmderbsdaspm.supabase.co
+#   VITE_SUPABASE_ANON_KEY = sb_publishable_UvYKgJUCVq9d9OsPX2MOVw_6F0sCCXK
+
+# Fallback de SPA: qualquer rota serve o index.html (client-side).
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

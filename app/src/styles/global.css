@@ -1,0 +1,315 @@
+/* ============================================================
+   Biblioteca de Documentações — tokens & estilos globais
+   Portados do design (Conecta AP design system + override vermelho).
+   ============================================================ */
+
+:root {
+  /* ===== Surfaces (dark — padrão) ===== */
+  --background: #141412;
+  --surface: #1e1e1c;
+  --surface-light: #282826;
+  --surface-elevated: #323230;
+  --surface-alt: #1a1a18;
+
+  /* ===== Texto ===== */
+  --text: #f0f0f0;
+  --text-secondary: #d0d0d0;
+  --text-muted: #a0a0a0;
+
+  /* ===== Bordas ===== */
+  --border-light: rgba(255, 255, 255, 0.1);
+
+  /* ===== Status ===== */
+  --success: #28a745;
+  --warning: #ffc107;
+  --danger: #dc3545;
+  --info: #17a2b8;
+
+  /* ===== Elevação ===== */
+  --elevation-1: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+  --elevation-2: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+  --elevation-3: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
+  --elevation-4: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22);
+
+  /* ===== Motion ===== */
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-decelerate: cubic-bezier(0, 0, 0.2, 1);
+
+  --focus-ring: 0 0 0 3px rgba(229, 72, 77, 0.32);
+
+  /* ===== Override primário (vermelho) — app ===== */
+  --primary: #e5484d;
+  --primary-light: #ff6369;
+  --primary-dark: #b02a30;
+  --primary-hover: #ec5a5f;
+  --primary-subtle: rgba(229, 72, 77, 0.1);
+  --gradient-primary: linear-gradient(135deg, #e5484d 0%, #b02a30 100%);
+  --gradient-primary-hover: linear-gradient(135deg, #ff6369 0%, #e5484d 100%);
+  --glow-primary: 0 0 22px rgba(229, 72, 77, 0.3);
+  --border: rgba(229, 72, 77, 0.3);
+
+  /* ===== Tipografia (IBM Plex Mono) ===== */
+  --font-primary: 'IBM Plex Mono', ui-monospace, monospace;
+  --font-secondary: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+.light-theme {
+  --background: #efede8;
+  --surface: #f7f6f2;
+  --surface-light: #eae8e3;
+  --surface-elevated: #ffffff;
+  --surface-alt: #e8e6e1;
+
+  --text: #1c1c1a;
+  --text-secondary: #4a4a46;
+  --text-muted: #76766e;
+
+  --border-light: rgba(0, 0, 0, 0.09);
+
+  --success: #1e8e3e;
+  --warning: #e6a800;
+  --danger: #c62828;
+  --info: #0d8fa8;
+
+  /* Override primário (vermelho, tom claro) */
+  --primary: #c4342e;
+  --primary-light: #d9463f;
+  --primary-dark: #96201b;
+  --primary-hover: #b32e28;
+  --primary-subtle: rgba(196, 52, 46, 0.1);
+  --gradient-primary: linear-gradient(135deg, #c4342e 0%, #96201b 100%);
+  --gradient-primary-hover: linear-gradient(135deg, #d9463f 0%, #c4342e 100%);
+  --glow-primary: 0 0 20px rgba(196, 52, 46, 0.2);
+  --border: rgba(196, 52, 46, 0.3);
+  --focus-ring: 0 0 0 3px rgba(196, 52, 46, 0.28);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background: var(--background);
+}
+
+body {
+  font-family: var(--font-secondary);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+}
+
+button {
+  font-family: inherit;
+}
+
+/* ===== Scrollbar ===== */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(229, 72, 77, 0.35);
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(229, 72, 77, 0.55);
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* ===== Material Symbols ===== */
+.ms-icon {
+  font-family: 'Material Symbols Rounded';
+  font-weight: normal;
+  font-style: normal;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
+  font-variation-settings: 'FILL' 0, 'wght' 400;
+  user-select: none;
+}
+
+/* ===== Keyframes ===== */
+@keyframes authCardIn {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+@keyframes slideUpFade {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ===== Corpo do documento (Markdown) ===== */
+.md-body {
+  font-family: var(--font-secondary);
+  color: var(--text-secondary);
+  font-size: 14.5px;
+  line-height: 1.7;
+}
+.md-body h1,
+.md-body h2,
+.md-body h3,
+.md-body h4 {
+  font-family: var(--font-primary);
+  color: var(--text);
+  line-height: 1.3;
+  scroll-margin-top: 24px;
+}
+.md-body h1 {
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 0 0 12px;
+}
+.md-body h2 {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 36px 0 12px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border-light);
+}
+.md-body h3 {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 24px 0 8px;
+  color: var(--text);
+}
+.md-body p {
+  margin: 0 0 14px;
+}
+.md-body ul,
+.md-body ol {
+  margin: 0 0 14px;
+  padding-left: 22px;
+}
+.md-body li {
+  margin: 6px 0;
+}
+.md-body a {
+  color: var(--primary);
+}
+.md-body a:hover {
+  color: var(--primary-hover);
+  text-decoration: underline;
+}
+.md-body strong {
+  color: var(--text);
+  font-weight: 600;
+}
+.md-body code {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.85em;
+  background: var(--surface-light);
+  border: 1px solid var(--border-light);
+  border-radius: 5px;
+  padding: 1px 6px;
+  color: var(--primary-light);
+}
+.md-body pre {
+  background: var(--surface-alt);
+  border: 1px solid var(--border-light);
+  border-radius: 10px;
+  padding: 16px 18px;
+  overflow-x: auto;
+  margin: 0 0 16px;
+}
+.md-body pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--text-secondary);
+  font-size: 12.5px;
+  line-height: 1.6;
+}
+.md-body blockquote {
+  margin: 0 0 16px;
+  padding: 12px 18px;
+  border-left: 3px solid var(--primary);
+  background: var(--primary-subtle);
+  border-radius: 0 10px 10px 0;
+  color: var(--text-secondary);
+}
+.md-body blockquote p {
+  margin: 0;
+}
+.md-body table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0 0 18px;
+  font-size: 13.5px;
+  border: 1px solid var(--border-light);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.md-body th,
+.md-body td {
+  text-align: left;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border-light);
+}
+.md-body th {
+  font-family: var(--font-primary);
+  font-weight: 600;
+  color: var(--text);
+  background: var(--surface-light);
+  font-size: 11.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.md-body td {
+  color: var(--text-secondary);
+}
+.md-body tr:last-child td {
+  border-bottom: none;
+}
+.md-body hr {
+  border: none;
+  border-top: 1px solid var(--border-light);
+  margin: 26px 0;
+}
+.md-body mark {
+  background: rgba(229, 72, 77, 0.32);
+  color: var(--text);
+  border-radius: 3px;
+  padding: 0 2px;
+}
+
+/* Inputs herdam a fonte */
+input,
+textarea,
+select {
+  font-family: var(--font-secondary);
+}
+input::placeholder,
+textarea::placeholder {
+  color: var(--text-muted);
+}

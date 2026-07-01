@@ -1,0 +1,165 @@
+import type { CSSProperties } from 'react'
+import type { Store } from '../../store/useStore'
+import { Icon } from '../ui/Icon'
+import { Hoverable } from '../ui/Hoverable'
+import { primaryBtnStyle, uploadBtnHover } from '../ui/styles'
+import { cats } from '../../lib/constants'
+import {
+  ModalShell,
+  ModalCloseButton,
+  cancelBtn,
+  modalInput,
+  modalLabel,
+  modalSelect,
+  modalTextarea,
+} from './ModalShell'
+
+export function UploadModal({ store }: { store: Store }) {
+  const f = store.form
+  const curProj = store.project(store.currentProjectId)
+  const subsList = store.currentProjectId ? store.subprojects(store.currentProjectId) : []
+  const hasFile = !!f.content
+  const disabled = !(f.title.trim() && f.content.trim())
+
+  const dropStyle: CSSProperties = {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    textAlign: 'center',
+    minHeight: '110px',
+    padding: '18px',
+    marginBottom: '16px',
+    borderRadius: '12px',
+    cursor: 'pointer',
+    border: '1.5px dashed ' + (hasFile ? 'rgba(229,72,77,0.5)' : 'var(--border-light)'),
+    background: hasFile ? 'var(--primary-subtle)' : 'var(--surface)',
+  }
+
+  return (
+    <ModalShell onClose={store.closeUpload} width={560}>
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '12px', marginBottom: '18px' }}>
+        <div>
+          <div style={{ fontFamily: 'var(--font-primary)', fontWeight: 600, fontSize: '18px', color: 'var(--text)' }}>
+            Subir documentação
+          </div>
+          <div style={{ fontFamily: 'var(--font-secondary)', fontSize: '12.5px', color: 'var(--text-muted)', marginTop: '3px' }}>
+            Salvando em <strong style={{ color: 'var(--primary)' }}>{curProj?.name}</strong> · envie um
+            .md e padronize os campos.
+          </div>
+        </div>
+        <ModalCloseButton onClose={store.closeUpload} />
+      </div>
+
+      <label
+        onDrop={(e) => {
+          e.preventDefault()
+          store.readFile(e.dataTransfer?.files?.[0])
+        }}
+        onDragOver={(e) => e.preventDefault()}
+        style={dropStyle}
+      >
+        <input
+          type="file"
+          accept=".md,.markdown,text/markdown"
+          onChange={(e) => store.readFile(e.target.files?.[0])}
+          style={{ display: 'none' }}
+        />
+        {hasFile ? (
+          <>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', fontFamily: 'var(--font-secondary)', fontSize: '13px', color: 'var(--text)' }}>
+              <Icon name="description" size={24} style={{ color: 'var(--primary)' }} />
+              {f.fileName}
+            </span>
+            <span style={{ fontFamily: 'var(--font-secondary)', fontSize: '11.5px', color: 'var(--text-muted)', marginTop: '6px' }}>
+              Clique para trocar o arquivo
+            </span>
+          </>
+        ) : (
+          <>
+            <Icon name="upload_file" size={34} style={{ color: 'var(--primary)' }} />
+            <span style={{ fontFamily: 'var(--font-primary)', fontWeight: 600, fontSize: '13.5px', color: 'var(--text-secondary)', marginTop: '8px' }}>
+              Arraste um .md aqui ou clique para selecionar
+            </span>
+            <span style={{ fontFamily: 'var(--font-secondary)', fontSize: '11.5px', color: 'var(--text-muted)', marginTop: '3px' }}>
+              O conteúdo será renderizado e indexado para busca
+            </span>
+          </>
+        )}
+      </label>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', marginBottom: '12px' }}>
+        <label style={modalLabel}>Título</label>
+        <input
+          value={f.title}
+          onChange={(e) => store.patchForm('title')(e.target.value)}
+          placeholder="Ex.: Guia de Onboarding do Consultor"
+          style={modalInput}
+        />
+      </div>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', marginBottom: '12px' }}>
+        <label style={modalLabel}>Descrição / resumo curto</label>
+        <textarea
+          value={f.description}
+          onChange={(e) => store.patchForm('description')(e.target.value)}
+          placeholder="Uma linha explicando do que trata este documento"
+          rows={2}
+          style={modalTextarea}
+        />
+      </div>
+
+      {subsList.length > 0 && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', marginBottom: '12px' }}>
+          <label style={modalLabel}>Subprojeto</label>
+          <select value={f.subId} onChange={(e) => store.patchForm('subId')(e.target.value)} style={modalSelect}>
+            <option value="">Raiz do projeto</option>
+            {subsList.map((s) => (
+              <option key={s.id} value={s.id}>
+                {s.name}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+
+      <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '5px' }}>
+          <label style={modalLabel}>Categoria / módulo</label>
+          <select value={f.category} onChange={(e) => store.patchForm('category')(e.target.value)} style={modalSelect}>
+            {cats.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.label}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '5px' }}>
+          <label style={modalLabel}>Tags (separadas por vírgula)</label>
+          <input
+            value={f.tagsText}
+            onChange={(e) => store.patchForm('tagsText')(e.target.value)}
+            placeholder="processo, checklist"
+            style={modalInput}
+          />
+        </div>
+      </div>
+
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '10px' }}>
+        <button onClick={store.closeUpload} style={cancelBtn}>
+          Cancelar
+        </button>
+        <Hoverable
+          as="button"
+          onClick={store.saveUpload}
+          disabled={disabled}
+          hoverStyle={disabled ? undefined : uploadBtnHover}
+          style={primaryBtnStyle(disabled)}
+        >
+          <Icon name="library_add" size={18} />
+          Salvar na biblioteca
+        </Hoverable>
+      </div>
+    </ModalShell>
+  )
+}

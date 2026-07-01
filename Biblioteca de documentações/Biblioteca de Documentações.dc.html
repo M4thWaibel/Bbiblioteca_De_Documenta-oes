@@ -1,0 +1,1201 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="_ds/conecta-ap-design-system-75454559-9fb2-40ce-825c-58e2f0a9f7dd/colors_and_type.css">
+  <link rel="stylesheet" href="_ds/conecta-ap-design-system-75454559-9fb2-40ce-825c-58e2f0a9f7dd/ui_kits/conecta-ap/tokens.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap">
+  <script src="_ds/conecta-ap-design-system-75454559-9fb2-40ce-825c-58e2f0a9f7dd/_ds_bundle.js"></script>
+  <style>
+    :root{
+      --primary:#E5484D;--primary-light:#FF6369;--primary-dark:#B02A30;--primary-hover:#EC5A5F;--primary-subtle:rgba(229,72,77,0.10);
+      --gradient-primary:linear-gradient(135deg,#E5484D 0%,#B02A30 100%);
+      --gradient-primary-hover:linear-gradient(135deg,#FF6369 0%,#E5484D 100%);
+      --glow-primary:0 0 22px rgba(229,72,77,0.30);
+      --border:rgba(229,72,77,0.30);
+      --font-primary:'IBM Plex Mono',ui-monospace,monospace;
+      --font-secondary:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+    }
+    .light-theme{
+      --primary:#C4342E;--primary-light:#D9463F;--primary-dark:#96201B;--primary-hover:#B32E28;--primary-subtle:rgba(196,52,46,0.10);
+      --gradient-primary:linear-gradient(135deg,#C4342E 0%,#96201B 100%);
+      --glow-primary:0 0 20px rgba(196,52,46,0.20);
+      --border:rgba(196,52,46,0.30);
+    }
+    ::-webkit-scrollbar{width:8px;height:8px;}
+    ::-webkit-scrollbar-thumb{background:rgba(229,72,77,0.35);border-radius:999px;}
+    ::-webkit-scrollbar-thumb:hover{background:rgba(229,72,77,0.55);}
+    html,body{margin:0;height:100%;background:var(--background);}
+    @keyframes authCardIn{from{opacity:0;transform:translateY(24px) scale(0.98);}to{opacity:1;transform:translateY(0) scale(1);}}
+    @keyframes slideUpFade{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
+    @keyframes spin{to{transform:rotate(360deg);}}
+    .md-body{font-family:var(--font-secondary);color:var(--text-secondary);font-size:14.5px;line-height:1.7;}
+    .md-body h1,.md-body h2,.md-body h3,.md-body h4{font-family:var(--font-primary);color:var(--text);line-height:1.3;scroll-margin-top:24px;}
+    .md-body h1{font-size:26px;font-weight:700;letter-spacing:-0.02em;margin:0 0 12px;}
+    .md-body h2{font-size:20px;font-weight:600;margin:36px 0 12px;padding-top:18px;border-top:1px solid var(--border-light);}
+    .md-body h3{font-size:16px;font-weight:600;margin:24px 0 8px;color:var(--text);}
+    .md-body p{margin:0 0 14px;}
+    .md-body ul,.md-body ol{margin:0 0 14px;padding-left:22px;}
+    .md-body li{margin:6px 0;}
+    .md-body a{color:var(--primary);}
+    .md-body a:hover{color:var(--primary-hover);text-decoration:underline;}
+    .md-body strong{color:var(--text);font-weight:600;}
+    .md-body code{font-family:'IBM Plex Mono',monospace;font-size:0.85em;background:var(--surface-light);border:1px solid var(--border-light);border-radius:5px;padding:1px 6px;color:var(--primary-light);}
+    .md-body pre{background:var(--surface-alt);border:1px solid var(--border-light);border-radius:10px;padding:16px 18px;overflow-x:auto;margin:0 0 16px;}
+    .md-body pre code{background:none;border:none;padding:0;color:var(--text-secondary);font-size:12.5px;line-height:1.6;}
+    .md-body blockquote{margin:0 0 16px;padding:12px 18px;border-left:3px solid var(--primary);background:var(--primary-subtle);border-radius:0 10px 10px 0;color:var(--text-secondary);}
+    .md-body blockquote p{margin:0;}
+    .md-body table{width:100%;border-collapse:collapse;margin:0 0 18px;font-size:13.5px;border:1px solid var(--border-light);border-radius:10px;overflow:hidden;}
+    .md-body th,.md-body td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--border-light);}
+    .md-body th{font-family:var(--font-primary);font-weight:600;color:var(--text);background:var(--surface-light);font-size:11.5px;text-transform:uppercase;letter-spacing:0.04em;}
+    .md-body td{color:var(--text-secondary);}
+    .md-body tr:last-child td{border-bottom:none;}
+    .md-body hr{border:none;border-top:1px solid var(--border-light);margin:26px 0;}
+    .md-body mark{background:rgba(229,72,77,0.32);color:var(--text);border-radius:3px;padding:0 2px;}
+  </style>
+</helmet>
+<div style="position:fixed;inset:0;display:flex;flex-direction:column;background:var(--background);color:var(--text);font-family:var(--font-secondary);" class="{{ themeClass }}">
+
+  <sc-if value="{{ isLoading }}" hint-placeholder-val="{{ true }}">
+    <div style="flex:1;display:flex;align-items:center;justify-content:center;">
+      <div style="width:34px;height:34px;border:3px solid var(--border-light);border-top-color:var(--primary);border-radius:50%;animation:spin 800ms linear infinite;"></div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isLogin }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;inset:0;overflow:hidden;background:linear-gradient(160deg,#0e0e0c 0%,#1A1A18 100%);display:flex;align-items:center;justify-content:center;padding:24px;">
+      <div style="position:absolute;width:520px;height:520px;border-radius:50%;filter:blur(90px);opacity:0.11;background:#E5484D;top:-130px;left:-110px;pointer-events:none;"></div>
+      <div style="position:absolute;width:440px;height:440px;border-radius:50%;filter:blur(90px);opacity:0.09;background:#FF6369;bottom:-120px;right:-90px;pointer-events:none;"></div>
+      <div style="position:relative;width:min(430px,92vw);background:var(--surface-elevated);border:1px solid rgba(229,72,77,0.18);border-radius:20px;padding:38px 34px 28px;box-shadow:0 40px 80px rgba(0,0,0,0.6);animation:authCardIn 700ms cubic-bezier(0,0,0.2,1);">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:14px;margin-bottom:22px;">
+          <div style="width:52px;height:52px;border-radius:15px;background:var(--gradient-primary);display:flex;align-items:center;justify-content:center;color:#fff;font-family:var(--font-primary);font-weight:700;font-size:18px;box-shadow:0 6px 18px rgba(229,72,77,0.4);">AP</div>
+          <div style="text-align:center;">
+            <div style="font-family:var(--font-primary);font-weight:600;font-size:20px;color:var(--text);">{{ authTitle }}</div>
+            <div style="font-family:var(--font-secondary);font-size:12.5px;color:var(--text-muted);margin-top:5px;line-height:1.5;">{{ authSubtitle }}</div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:12px;">
+          <label style="font-family:var(--font-primary);font-weight:500;font-size:12px;color:var(--text-secondary);">E-mail</label>
+          <div style="display:flex;align-items:center;gap:10px;height:46px;padding:0 12px;background:var(--surface);border:1px solid var(--border-light);border-radius:9px;">
+            <span class="ms-icon" style="font-size:19px;color:var(--text-muted);">mail</span>
+            <input value="{{ authEmail }}" onChange="{{ setAuthEmail }}" onKeyDown="{{ authKey }}" type="email" placeholder="voce@exemplo.com" style="background:transparent;border:none;outline:none;color:var(--text);font-family:var(--font-secondary);font-size:14px;flex:1;" />
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:12px;">
+          <label style="font-family:var(--font-primary);font-weight:500;font-size:12px;color:var(--text-secondary);">Senha</label>
+          <div style="display:flex;align-items:center;gap:10px;height:46px;padding:0 12px;background:var(--surface);border:1px solid var(--border-light);border-radius:9px;">
+            <span class="ms-icon" style="font-size:19px;color:var(--text-muted);">lock</span>
+            <input value="{{ authPass }}" onChange="{{ setAuthPass }}" onKeyDown="{{ authKey }}" type="password" placeholder="Mínimo 6 caracteres" style="background:transparent;border:none;outline:none;color:var(--text);font-family:var(--font-secondary);font-size:14px;flex:1;" />
+          </div>
+        </div>
+        <sc-if value="{{ isRegister }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:12px;">
+            <label style="font-family:var(--font-primary);font-weight:500;font-size:12px;color:var(--text-secondary);">Confirmar senha</label>
+            <div style="display:flex;align-items:center;gap:10px;height:46px;padding:0 12px;background:var(--surface);border:1px solid var(--border-light);border-radius:9px;">
+              <span class="ms-icon" style="font-size:19px;color:var(--text-muted);">lock_reset</span>
+              <input value="{{ authPass2 }}" onChange="{{ setAuthPass2 }}" onKeyDown="{{ authKey }}" type="password" placeholder="Repita a senha" style="background:transparent;border:none;outline:none;color:var(--text);font-family:var(--font-secondary);font-size:14px;flex:1;" />
+            </div>
+          </div>
+        </sc-if>
+        <sc-if value="{{ authError }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:9px;background:rgba(220,53,69,0.12);border:1px solid rgba(220,53,69,0.35);color:#F87171;font-family:var(--font-secondary);font-size:12.5px;margin-bottom:12px;">
+            <span class="ms-icon" style="font-size:17px;">error</span>{{ authError }}
+          </div>
+        </sc-if>
+        <button onClick="{{ submitAuth }}" style="width:100%;height:48px;border-radius:11px;border:none;cursor:pointer;background:var(--gradient-primary);color:#fff;font-family:var(--font-primary);font-weight:700;font-size:14px;letter-spacing:0.04em;box-shadow:0 4px 16px rgba(229,72,77,0.35);transition:transform 200ms var(--ease-standard),box-shadow 200ms;margin-top:4px;" style-hover="{{ uploadBtnHover }}">{{ authCta }}</button>
+        <div style="display:flex;justify-content:center;gap:6px;margin-top:18px;font-family:var(--font-secondary);font-size:12.5px;color:var(--text-muted);">
+          <span>{{ authTogglePrompt }}</span>
+          <a onClick="{{ toggleAuthMode }}" style="color:var(--primary);cursor:pointer;font-weight:600;">{{ authToggleAction }}</a>
+        </div>
+        <div style="text-align:center;margin-top:14px;padding-top:14px;border-top:1px solid var(--border-light);font-family:var(--font-secondary);font-size:11px;color:var(--text-muted);line-height:1.5;">
+          <span class="ms-icon" style="font-size:13px;vertical-align:-2px;">shield</span> Sessão local no navegador. No projeto real, a autenticação usará Supabase.
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ authed }}" hint-placeholder-val="{{ false }}">
+    <header style="height:64px;flex:none;display:flex;align-items:center;gap:14px;padding:0 22px;background:rgba(18,18,18,0.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);z-index:10;">
+      <div onClick="{{ goProjects }}" style="display:flex;align-items:center;gap:12px;cursor:pointer;flex:none;">
+        <div style="width:38px;height:38px;border-radius:11px;background:var(--gradient-primary);display:flex;align-items:center;justify-content:center;color:#fff;font-family:var(--font-primary);font-weight:700;font-size:14px;letter-spacing:0.02em;">AP</div>
+        <div style="display:flex;flex-direction:column;line-height:1.2;">
+          <span style="font-family:var(--font-primary);font-weight:600;font-size:15px;color:var(--text);letter-spacing:-0.01em;">Biblioteca de Documentações</span>
+          <span style="font-family:var(--font-secondary);font-size:11px;color:var(--text-muted);letter-spacing:0.03em;">Base de conhecimento pessoal</span>
+        </div>
+      </div>
+
+      <sc-if value="{{ isLibrary }}" hint-placeholder-val="{{ false }}">
+        <span style="color:var(--text-muted);font-size:18px;margin:0 2px;">/</span>
+        <div onClick="{{ clearSubBreadcrumb }}" style="display:inline-flex;align-items:center;gap:8px;padding:6px 12px;border-radius:10px;background:var(--surface);border:1px solid var(--border-light);min-width:0;cursor:pointer;">
+          <span style="{{ currentProjectDot }}"></span>
+          <span style="font-family:var(--font-primary);font-weight:600;font-size:13px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px;">{{ currentProjectName }}</span>
+        </div>
+        <sc-if value="{{ hasSub }}" hint-placeholder-val="{{ false }}">
+          <span style="color:var(--text-muted);font-size:16px;">›</span>
+          <div style="display:inline-flex;align-items:center;gap:8px;padding:6px 12px;border-radius:10px;background:var(--primary-subtle);border:1px solid rgba(229,72,77,0.35);min-width:0;">
+            <span style="{{ currentSubDot }}"></span>
+            <span style="font-family:var(--font-primary);font-weight:600;font-size:13px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:170px;">{{ currentSubName }}</span>
+          </div>
+        </sc-if>
+      </sc-if>
+
+      <div style="margin-left:auto;display:flex;align-items:center;gap:10px;flex:none;">
+        <div style="display:flex;align-items:center;gap:6px;">
+          <button onClick="{{ goProjects }}" style="{{ navProjStyle }}"><span class="ms-icon" style="font-size:18px;">grid_view</span>Projetos</button>
+          <button onClick="{{ goBoard }}" style="{{ navBoardStyle }}"><span class="ms-icon" style="font-size:18px;">view_kanban</span>Quadro</button>
+        </div>
+        <sc-if value="{{ isLibrary }}" hint-placeholder-val="{{ false }}">
+          <button onClick="{{ openMembers }}" title="Membros do projeto" style="display:inline-flex;align-items:center;gap:7px;height:40px;padding:0 12px;border-radius:10px;background:transparent;border:1px solid var(--border-light);color:var(--text-secondary);font-family:var(--font-primary);font-weight:600;font-size:12.5px;cursor:pointer;" style-hover="{{ ghostHover }}"><span class="ms-icon" style="font-size:18px;">group</span>{{ memberCountLabel }}</button>
+        </sc-if>
+        <sc-if value="{{ showPrimary }}" hint-placeholder-val="{{ false }}">
+          <button onClick="{{ primaryAction }}" style="display:inline-flex;align-items:center;gap:8px;height:40px;padding:0 16px;border:none;border-radius:10px;background:var(--gradient-primary);color:#fff;font-family:var(--font-primary);font-weight:700;font-size:13px;letter-spacing:0.04em;cursor:pointer;box-shadow:0 4px 14px rgba(229,72,77,0.28);transition:transform 200ms var(--ease-standard),box-shadow 200ms;" style-hover="{{ uploadBtnHover }}"><span class="ms-icon" style="font-size:19px;">{{ primaryIcon }}</span>{{ primaryLabel }}</button>
+        </sc-if>
+        <div style="display:flex;align-items:center;gap:10px;padding:6px 8px 6px 6px;border-radius:16px;border:1px solid var(--border-light);">
+          <div style="width:32px;height:32px;border-radius:50%;background:var(--gradient-primary);color:#fff;font-family:var(--font-primary);font-weight:700;font-size:12px;display:flex;align-items:center;justify-content:center;">{{ userInitials }}</div>
+          <div style="display:flex;flex-direction:column;line-height:1.15;max-width:150px;">
+            <span style="font-family:var(--font-secondary);font-weight:600;font-size:12px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ userEmail }}</span>
+            <span style="font-family:var(--font-secondary);font-size:10.5px;color:var(--text-muted);">Sessão ativa</span>
+          </div>
+        </div>
+        <button onClick="{{ logout }}" title="Sair" style="width:40px;height:40px;border-radius:10px;background:transparent;border:1px solid var(--border-light);color:var(--text-secondary);cursor:pointer;display:flex;align-items:center;justify-content:center;" style-hover="{{ ghostHover }}"><span class="ms-icon" style="font-size:19px;">logout</span></button>
+      </div>
+    </header>
+
+    <sc-if value="{{ isProjects }}" hint-placeholder-val="{{ false }}">
+      <div style="flex:1;overflow-y:auto;background:var(--background);">
+        <div style="max-width:1080px;margin:0 auto;padding:40px 40px 80px;">
+          <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;">
+            <div>
+              <h1 style="font-family:var(--font-primary);font-weight:700;font-size:28px;letter-spacing:-0.02em;color:var(--text);margin:0 0 6px;">Seus projetos</h1>
+              <p style="font-family:var(--font-secondary);font-size:14px;color:var(--text-secondary);margin:0;">Selecione um projeto para ver suas documentações e subprojetos. O quadro de tarefas fica em <strong style="color:var(--primary);">Quadro</strong>, no topo.</p>
+            </div>
+            <button onClick="{{ openProjModal }}" style="display:inline-flex;align-items:center;gap:8px;height:42px;padding:0 18px;border:none;border-radius:10px;background:var(--gradient-primary);color:#fff;font-family:var(--font-primary);font-weight:700;font-size:13px;letter-spacing:0.03em;cursor:pointer;box-shadow:0 4px 14px rgba(229,72,77,0.28);" style-hover="{{ uploadBtnHover }}"><span class="ms-icon" style="font-size:19px;">add</span>Novo projeto</button>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;margin-top:26px;">
+            <sc-for list="{{ projectCards }}" as="p" hint-placeholder-count="3">
+              <div onClick="{{ p.open }}" style="{{ p.style }}" style-hover="{{ p.hover }}">
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+                  <div style="display:flex;align-items:center;gap:10px;min-width:0;">
+                    <span style="{{ p.dotStyle }}"></span>
+                    <span style="font-family:var(--font-primary);font-weight:700;font-size:16px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ p.name }}</span>
+                  </div>
+                  <button onClick="{{ p.del }}" title="Excluir projeto" style="width:30px;height:30px;flex:none;border-radius:8px;background:transparent;border:1px solid var(--border-light);color:var(--text-muted);cursor:pointer;display:flex;align-items:center;justify-content:center;" style-hover="{{ dangerHover }}"><span class="ms-icon" style="font-size:16px;">delete</span></button>
+                </div>
+                <p style="font-family:var(--font-secondary);font-size:12.5px;color:var(--text-muted);line-height:1.55;margin:2px 0 0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:38px;">{{ p.description }}</p>
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-top:auto;padding-top:14px;gap:10px;">
+                  <div style="display:flex;align-items:center;">
+                    <sc-for list="{{ p.avatars }}" as="a" hint-placeholder-count="3">
+                      <div style="{{ a.style }}" title="{{ a.name }}">{{ a.initials }}</div>
+                    </sc-for>
+                    <sc-if value="{{ p.hasExtra }}" hint-placeholder-val="{{ false }}">
+                      <div style="{{ p.extraStyle }}">+{{ p.extraCount }}</div>
+                    </sc-if>
+                  </div>
+                  <span style="display:inline-flex;align-items:center;gap:6px;font-family:var(--font-secondary);font-size:11.5px;color:var(--text-secondary);"><span class="ms-icon" style="font-size:15px;">description</span>{{ p.docCount }}<span style="color:var(--border-light);">·</span><span class="ms-icon" style="font-size:15px;">account_tree</span>{{ p.subCount }}</span>
+                </div>
+              </div>
+            </sc-for>
+            <div onClick="{{ openProjModal }}" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;min-height:176px;border-radius:14px;border:1.5px dashed var(--border-light);background:var(--surface-alt);cursor:pointer;color:var(--text-muted);transition:border-color 200ms,color 200ms;" style-hover="{{ dashedHover }}">
+              <span class="ms-icon" style="font-size:30px;color:var(--primary);">create_new_folder</span>
+              <span style="font-family:var(--font-primary);font-weight:600;font-size:13.5px;color:var(--text-secondary);">Novo projeto</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isLibrary }}" hint-placeholder-val="{{ false }}">
+      <div style="flex:1;display:flex;min-height:0;">
+        <aside style="width:380px;flex:none;display:flex;flex-direction:column;border-right:1px solid var(--border-light);background:var(--surface-alt);min-height:0;">
+          <div style="padding:14px 18px 12px;display:flex;flex-direction:column;gap:10px;border-bottom:1px solid var(--border-light);">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+              <span style="font-family:var(--font-primary);font-weight:600;font-size:10.5px;letter-spacing:0.09em;text-transform:uppercase;color:var(--text-muted);">Subprojetos</span>
+              <div style="display:flex;align-items:center;gap:6px;">
+                <sc-if value="{{ canDeleteSub }}" hint-placeholder-val="{{ false }}">
+                  <button onClick="{{ deleteSubAction }}" title="Excluir subprojeto" style="width:26px;height:26px;border-radius:7px;background:transparent;border:1px solid var(--border-light);color:var(--text-muted);cursor:pointer;display:flex;align-items:center;justify-content:center;" style-hover="{{ dangerHover }}"><span class="ms-icon" style="font-size:15px;">delete</span></button>
+                </sc-if>
+                <button onClick="{{ addSubproject }}" title="Novo subprojeto" style="display:inline-flex;align-items:center;gap:5px;height:26px;padding:0 9px;border-radius:7px;background:transparent;border:1px solid var(--border-light);color:var(--text-secondary);font-family:var(--font-primary);font-weight:600;font-size:11px;cursor:pointer;" style-hover="{{ ghostHover }}"><span class="ms-icon" style="font-size:15px;">add</span>Subprojeto</button>
+              </div>
+            </div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;">
+              <sc-for list="{{ subChips }}" as="s" hint-placeholder-count="3">
+                <button onClick="{{ s.onClick }}" style="{{ s.style }}" style-hover="{{ s.hover }}"><span style="{{ s.dotStyle }}"></span>{{ s.label }}<span style="{{ s.badgeStyle }}">{{ s.count }}</span></button>
+              </sc-for>
+            </div>
+          </div>
+          <div style="padding:16px 18px 14px;display:flex;flex-direction:column;gap:12px;border-bottom:1px solid var(--border-light);">
+            <div style="display:flex;align-items:center;gap:10px;height:44px;padding:0 12px;background:var(--surface);border:1px solid var(--border-light);border-radius:11px;">
+              <span class="ms-icon" style="font-size:20px;color:var(--text-muted);">search</span>
+              <input value="{{ query }}" onChange="{{ onQuery }}" placeholder="Buscar documento ou conteúdo…" style="background:transparent;border:none;outline:none;color:var(--text);font-family:var(--font-secondary);font-size:13.5px;flex:1;" />
+              <sc-if value="{{ hasQuery }}" hint-placeholder-val="{{ false }}">
+                <button onClick="{{ clearQuery }}" style="background:transparent;border:none;color:var(--text-muted);cursor:pointer;display:flex;align-items:center;padding:2px;"><span class="ms-icon" style="font-size:18px;">close</span></button>
+              </sc-if>
+            </div>
+            <div style="display:flex;flex-wrap:wrap;gap:7px;">
+              <sc-for list="{{ chips }}" as="c" hint-placeholder-count="5">
+                <button onClick="{{ c.onClick }}" style="{{ c.style }}" style-hover="{{ c.hover }}">
+                  <span class="ms-icon" style="font-size:15px;">{{ c.icon }}</span>
+                  <span>{{ c.label }}</span>
+                  <span style="{{ c.badgeStyle }}">{{ c.count }}</span>
+                </button>
+              </sc-for>
+            </div>
+            <sc-if value="{{ tag }}" hint-placeholder-val="{{ false }}">
+              <div style="display:inline-flex;align-items:center;gap:7px;align-self:flex-start;padding:5px 8px 5px 11px;border-radius:8px;background:var(--primary-subtle);border:1px solid rgba(229,72,77,0.4);color:var(--primary);font-family:var(--font-primary);font-weight:600;font-size:11.5px;">
+                <span class="ms-icon" style="font-size:14px;">sell</span>
+                {{ tag }}
+                <button onClick="{{ clearTag }}" style="background:transparent;border:none;color:var(--primary);cursor:pointer;display:flex;align-items:center;"><span class="ms-icon" style="font-size:16px;">close</span></button>
+              </div>
+            </sc-if>
+          </div>
+          <div style="padding:12px 18px 6px;display:flex;align-items:center;justify-content:space-between;">
+            <span style="font-family:var(--font-primary);font-weight:600;font-size:10.5px;letter-spacing:0.09em;text-transform:uppercase;color:var(--text-muted);">{{ resultLabel }}</span>
+          </div>
+          <div style="flex:1;overflow-y:auto;padding:2px 12px 18px;display:flex;flex-direction:column;gap:8px;">
+            <sc-for list="{{ list }}" as="d" hint-placeholder-count="4">
+              <div onClick="{{ d.open }}" style="{{ d.style }}" style-hover="{{ d.hover }}">
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+                  <span style="{{ d.catChipStyle }}"><span class="ms-icon" style="font-size:13px;">{{ d.catIcon }}</span>{{ d.catLabel }}</span>
+                  <button onClick="{{ d.togglePin }}" title="Fixar" style="{{ d.pinStyle }}"><span class="ms-icon" style="font-size:17px;">push_pin</span></button>
+                </div>
+                <div style="font-family:var(--font-primary);font-weight:600;font-size:14px;color:var(--text);line-height:1.35;">{{ d.title }}</div>
+                <div style="font-family:var(--font-secondary);font-size:12px;color:var(--text-muted);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">{{ d.description }}</div>
+                <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:2px;">
+                  <sc-for list="{{ d.tags }}" as="t" hint-placeholder-count="2">
+                    <span style="font-family:var(--font-secondary);font-size:10.5px;color:var(--text-secondary);background:var(--surface-light);border:1px solid var(--border-light);border-radius:6px;padding:2px 7px;">{{ t }}</span>
+                  </sc-for>
+                  <sc-if value="{{ d.hasMatch }}" hint-placeholder-val="{{ false }}">
+                    <span style="margin-left:auto;display:inline-flex;align-items:center;gap:4px;font-family:var(--font-secondary);font-size:10.5px;color:var(--primary);"><span class="ms-icon" style="font-size:13px;">find_in_page</span>{{ d.matchLabel }}</span>
+                  </sc-if>
+                </div>
+              </div>
+            </sc-for>
+            <sc-if value="{{ listEmpty }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;padding:44px 20px;color:var(--text-muted);">
+                <span class="ms-icon" style="font-size:44px;opacity:0.5;">{{ emptyIcon }}</span>
+                <div style="font-family:var(--font-primary);font-weight:600;font-size:14px;color:var(--text-secondary);">{{ emptyTitle }}</div>
+                <div style="font-family:var(--font-secondary);font-size:12.5px;max-width:230px;line-height:1.5;">{{ emptyHint }}</div>
+              </div>
+            </sc-if>
+          </div>
+        </aside>
+
+        <main style="flex:1;min-width:0;display:flex;background:var(--background);">
+          <sc-if value="{{ hasActive }}" hint-placeholder-val="{{ true }}">
+            <div ref="{{ setScrollRef }}" style="flex:1;min-width:0;overflow-y:auto;position:relative;">
+              <div style="max-width:840px;margin:0 auto;padding:34px 48px 90px;">
+                <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:14px;">
+                  <span style="{{ active.catChipStyle }}"><span class="ms-icon" style="font-size:14px;">{{ active.catIcon }}</span>{{ active.catLabel }}</span>
+                  <div style="display:flex;align-items:center;gap:8px;flex:none;">
+                    <button onClick="{{ toggleActivePin }}" title="Fixar" style="{{ active.pinBtnStyle }}"><span class="ms-icon" style="font-size:18px;">push_pin</span></button>
+                    <button onClick="{{ copyActive }}" title="Copiar markdown" style="width:38px;height:38px;border-radius:9px;background:transparent;border:1px solid var(--border-light);color:var(--text-secondary);cursor:pointer;display:flex;align-items:center;justify-content:center;" style-hover="{{ ghostHover }}"><span class="ms-icon" style="font-size:18px;">{{ active.copyIcon }}</span></button>
+                    <button onClick="{{ downloadActive }}" title="Baixar .md" style="width:38px;height:38px;border-radius:9px;background:transparent;border:1px solid var(--border-light);color:var(--text-secondary);cursor:pointer;display:flex;align-items:center;justify-content:center;" style-hover="{{ ghostHover }}"><span class="ms-icon" style="font-size:18px;">download</span></button>
+                    <button onClick="{{ deleteActive }}" title="Excluir" style="width:38px;height:38px;border-radius:9px;background:transparent;border:1px solid var(--border-light);color:var(--text-secondary);cursor:pointer;display:flex;align-items:center;justify-content:center;" style-hover="{{ dangerHover }}"><span class="ms-icon" style="font-size:18px;">delete</span></button>
+                  </div>
+                </div>
+                <h1 style="font-family:var(--font-primary);font-weight:700;font-size:28px;letter-spacing:-0.02em;color:var(--text);margin:0 0 8px;line-height:1.25;">{{ active.title }}</h1>
+                <p style="font-family:var(--font-secondary);font-size:15px;color:var(--text-secondary);margin:0 0 12px;line-height:1.55;">{{ active.description }}</p>
+                <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;font-family:var(--font-secondary);font-size:12px;color:var(--text-muted);margin-bottom:8px;">
+                  <span style="display:inline-flex;align-items:center;gap:5px;"><span class="ms-icon" style="font-size:15px;">update</span>{{ active.dateLabel }}</span>
+                  <span style="display:inline-flex;align-items:center;gap:5px;"><span class="ms-icon" style="font-size:15px;">schedule</span>{{ active.reading }}</span>
+                  <span style="display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap;">
+                    <sc-for list="{{ active.tags }}" as="t" hint-placeholder-count="2">
+                      <span onClick="{{ t.onClick }}" style="cursor:pointer;font-family:var(--font-secondary);font-size:11px;color:var(--text-secondary);background:var(--surface-light);border:1px solid var(--border-light);border-radius:6px;padding:2px 8px;">{{ t.label }}</span>
+                    </sc-for>
+                  </span>
+                </div>
+                <hr style="border:none;border-top:1px solid var(--border-light);margin:18px 0 24px;" />
+                {{ articleEl }}
+              </div>
+            </div>
+            <sc-if value="{{ showToc }}" hint-placeholder-val="{{ true }}">
+              <aside style="width:248px;flex:none;border-left:1px solid var(--border-light);overflow-y:auto;padding:30px 18px;background:var(--surface-alt);">
+                <div style="font-family:var(--font-primary);font-weight:600;font-size:10.5px;letter-spacing:0.09em;text-transform:uppercase;color:var(--text-muted);margin-bottom:12px;padding-left:10px;">Nesta página</div>
+                <sc-for list="{{ toc }}" as="t" hint-placeholder-count="4">
+                  <a onClick="{{ t.onClick }}" style="{{ t.style }}" style-hover="{{ t.hover }}">{{ t.text }}</a>
+                </sc-for>
+                <sc-if value="{{ tocEmpty }}" hint-placeholder-val="{{ false }}">
+                  <div style="font-family:var(--font-secondary);font-size:12px;color:var(--text-muted);padding-left:10px;">Sem seções</div>
+                </sc-if>
+              </aside>
+            </sc-if>
+          </sc-if>
+          <sc-if value="{{ noActive }}" hint-placeholder-val="{{ false }}">
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;color:var(--text-muted);padding:40px;">
+              <div style="width:76px;height:76px;border-radius:20px;background:var(--surface);border:1px solid var(--border-light);display:flex;align-items:center;justify-content:center;color:var(--primary);"><span class="ms-icon" style="font-size:38px;">menu_book</span></div>
+              <div style="font-family:var(--font-primary);font-weight:600;font-size:17px;color:var(--text-secondary);">{{ emptyReaderTitle }}</div>
+              <div style="font-family:var(--font-secondary);font-size:13px;max-width:320px;line-height:1.6;">{{ emptyReaderHint }}</div>
+            </div>
+          </sc-if>
+        </main>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isBoard }}" hint-placeholder-val="{{ false }}">
+      <div style="flex:1;display:flex;flex-direction:column;min-height:0;background:var(--background);">
+        <div style="padding:18px 24px 6px;display:flex;flex-direction:column;gap:12px;flex:none;">
+          <div>
+            <h1 style="font-family:var(--font-primary);font-weight:700;font-size:20px;letter-spacing:-0.01em;color:var(--text);margin:0 0 3px;">Quadro de tarefas</h1>
+            <p style="font-family:var(--font-secondary);font-size:12.5px;color:var(--text-muted);margin:0;">{{ boardSubtitle }}</p>
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:7px;">
+            <sc-for list="{{ boardFilters }}" as="f" hint-placeholder-count="3">
+              <button onClick="{{ f.onClick }}" style="{{ f.style }}" style-hover="{{ f.hover }}">{{ f.label }}<span style="{{ f.badgeStyle }}">{{ f.count }}</span></button>
+            </sc-for>
+          </div>
+        </div>
+        <div style="flex:1;min-height:0;display:grid;grid-template-columns:repeat(4,minmax(250px,1fr));gap:14px;padding:8px 24px 24px;overflow-x:auto;">
+          <sc-for list="{{ columns }}" as="col" hint-placeholder-count="4">
+            <div onDragOver="{{ col.onDragOver }}" onDrop="{{ col.onDrop }}" style="{{ col.style }}">
+              <div style="display:flex;align-items:center;gap:8px;padding:2px 4px 10px;flex:none;">
+                <span style="{{ col.dotStyle }}"></span>
+                <span style="font-family:var(--font-primary);font-weight:600;font-size:12.5px;color:var(--text);letter-spacing:0.02em;">{{ col.label }}</span>
+                <span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--text-muted);background:var(--surface-light);border-radius:6px;padding:1px 7px;">{{ col.count }}</span>
+                <button onClick="{{ col.addTask }}" title="Nova tarefa" style="margin-left:auto;width:26px;height:26px;border-radius:7px;background:transparent;border:1px solid var(--border-light);color:var(--text-muted);cursor:pointer;display:flex;align-items:center;justify-content:center;" style-hover="{{ ghostHover }}"><span class="ms-icon" style="font-size:16px;">add</span></button>
+              </div>
+              <div style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:9px;padding:2px;">
+                <sc-for list="{{ col.tasks }}" as="t" hint-placeholder-count="2">
+                  <div draggable="true" onDragStart="{{ t.onDragStart }}" onClick="{{ t.open }}" style="{{ t.style }}" style-hover="{{ t.hover }}">
+                    <div style="display:flex;align-items:center;gap:6px;">
+                      <span style="{{ t.priStyle }}"><span style="{{ t.priDot }}"></span>{{ t.priLabel }}</span>
+                    </div>
+                    <div style="font-family:var(--font-primary);font-weight:600;font-size:13px;color:var(--text);line-height:1.35;">{{ t.title }}</div>
+                    <sc-if value="{{ t.hasDesc }}" hint-placeholder-val="{{ false }}">
+                      <div style="font-family:var(--font-secondary);font-size:11.5px;color:var(--text-muted);line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">{{ t.description }}</div>
+                    </sc-if>
+                    <sc-if value="{{ t.hasRefs }}" hint-placeholder-val="{{ false }}">
+                      <div style="display:flex;flex-wrap:wrap;gap:5px;">
+                        <sc-for list="{{ t.refs }}" as="r" hint-placeholder-count="1">
+                          <span onClick="{{ r.onClick }}" style="{{ r.style }}"><span class="ms-icon" style="font-size:12px;">{{ r.icon }}</span>{{ r.label }}</span>
+                        </sc-for>
+                      </div>
+                    </sc-if>
+                    <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:2px;">
+                      <div style="display:flex;align-items:center;">
+                        <sc-for list="{{ t.assignees }}" as="a" hint-placeholder-count="2">
+                          <div style="{{ a.style }}" title="{{ a.name }}">{{ a.initials }}</div>
+                        </sc-for>
+                      </div>
+                      <span class="ms-icon" style="font-size:15px;color:var(--text-muted);opacity:0.6;">drag_indicator</span>
+                    </div>
+                  </div>
+                </sc-for>
+                <sc-if value="{{ col.empty }}" hint-placeholder-val="{{ false }}">
+                  <button onClick="{{ col.addTask }}" style="border:1.5px dashed var(--border-light);background:transparent;border-radius:10px;padding:16px;color:var(--text-muted);font-family:var(--font-secondary);font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;" style-hover="{{ dashedHover }}"><span class="ms-icon" style="font-size:16px;">add</span>Adicionar tarefa</button>
+                </sc-if>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+  </sc-if>
+
+  <sc-if value="{{ uploadOpen }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ closeUpload }}" style="position:fixed;inset:0;background:rgba(0,0,0,0.55);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;z-index:50;padding:24px;">
+      <div onClick="{{ stop }}" style="width:min(560px,100%);max-height:90vh;overflow:auto;background:var(--surface-elevated);border:1px solid var(--border);border-radius:16px;padding:24px 26px 22px;box-shadow:0 30px 70px rgba(0,0,0,0.6);">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:18px;">
+          <div>
+            <div style="font-family:var(--font-primary);font-weight:600;font-size:18px;color:var(--text);">Subir documentação</div>
+            <div style="font-family:var(--font-secondary);font-size:12.5px;color:var(--text-muted);margin-top:3px;">Salvando em <strong style="color:var(--primary);">{{ currentProjectName }}</strong> · envie um .md e padronize os campos.</div>
+          </div>
+          <button onClick="{{ closeUpload }}" style="width:34px;height:34px;border-radius:8px;background:transparent;border:1px solid var(--border-light);color:var(--text-secondary);cursor:pointer;display:flex;align-items:center;justify-content:center;flex:none;"><span class="ms-icon" style="font-size:18px;">close</span></button>
+        </div>
+        <label onDrop="{{ onDrop }}" onDragOver="{{ onDragOver }}" style="{{ dropStyle }}">
+          <input type="file" accept=".md,.markdown,text/markdown" onChange="{{ onFileInput }}" style="display:none;" />
+          <sc-if value="{{ hasFile }}" hint-placeholder-val="{{ false }}">
+            <span style="display:inline-flex;align-items:center;gap:10px;font-family:var(--font-secondary);font-size:13px;color:var(--text);"><span class="ms-icon" style="font-size:24px;color:var(--primary);">description</span>{{ form.fileName }}</span>
+            <span style="font-family:var(--font-secondary);font-size:11.5px;color:var(--text-muted);margin-top:6px;">Clique para trocar o arquivo</span>
+          </sc-if>
+          <sc-if value="{{ noFile }}" hint-placeholder-val="{{ true }}">
+            <span class="ms-icon" style="font-size:34px;color:var(--primary);">upload_file</span>
+            <span style="font-family:var(--font-primary);font-weight:600;font-size:13.5px;color:var(--text-secondary);margin-top:8px;">Arraste um .md aqui ou clique para selecionar</span>
+            <span style="font-family:var(--font-secondary);font-size:11.5px;color:var(--text-muted);margin-top:3px;">O conteúdo será renderizado e indexado para busca</span>
+          </sc-if>
+        </label>
+        <div style="display:flex;flex-direction:column;gap:5px;margin-bottom:12px;">
+          <label style="font-family:var(--font-primary);font-weight:500;font-size:12px;color:var(--text-secondary);">Título</label>
+          <input value="{{ form.title }}" onChange="{{ setTitle }}" placeholder="Ex.: Guia de Onboarding do Consultor" style="height:42px;padding:0 12px;border-radius:8px;background:var(--surface);border:1px solid var(--border-light);color:var(--text);font-family:var(--font-secondary);font-size:13.5px;outline:none;" />
+        </div>
+        <div style="display:flex;flex-direction:column;gap:5px;margin-bottom:12px;">
+          <label style="font-family:var(--font-primary);font-weight:500;font-size:12px;color:var(--text-secondary);">Descrição / resumo curto</label>
+          <textarea value="{{ form.description }}" onChange="{{ setDescription }}" placeholder="Uma linha explicando do que trata este documento" rows="2" style="padding:10px 12px;border-radius:8px;background:var(--surface);border:1px solid var(--border-light);color:var(--text);font-family:var(--font-secondary);font-size:13.5px;outline:none;resize:vertical;line-height:1.5;"></textarea>
+        </div>
+        <sc-if value="{{ hasUploadSubs }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;gap:5px;margin-bottom:12px;">
+            <label style="font-family:var(--font-primary);font-weight:500;font-size:12px;color:var(--text-secondary);">Subprojeto</label>
+            <select value="{{ form.subId }}" onChange="{{ setSubId }}" style="height:42px;padding:0 10px;border-radius:8px;background:var(--surface);border:1px solid var(--border-light);color:var(--text);font-family:var(--font-secondary);font-size:13.5px;outline:none;cursor:pointer;">
+              <option value="">Raiz do projeto</option>
+              <sc-for list="{{ uploadSubs }}" as="o" hint-placeholder-count="3"><option value="{{ o.id }}">{{ o.label }}</option></sc-for>
+            </select>
+          </div>
+        </sc-if>
+        <div style="display:flex;gap:12px;margin-bottom:16px;">
+          <div style="flex:1;display:flex;flex-direction:column;gap:5px;">
+            <label style="font-family:var(--font-primary);font-weight:500;font-size:12px;color:var(--text-secondary);">Categoria / módulo</label>
+            <select value="{{ form.category }}" onChange="{{ setCategory }}" style="height:42px;padding:0 10px;border-radius:8px;background:var(--surface);border:1px solid var(--border-light);color:var(--text);font-family:var(--font-secondary);font-size:13.5px;outline:none;cursor:pointer;">
+              <sc-for list="{{ catOptions }}" as="o" hint-placeholder-count="6">
+                <option value="{{ o.id }}">{{ o.label }}</option>
+              </sc-for>
+            </select>
+          </div>
+          <div style="flex:1;display:flex;flex-direction:column;gap:5px;">
+            <label style="font-family:var(--font-primary);font-weight:500;font-size:12px;color:var(--text-secondary);">Tags (separadas por vírgula)</label>
+            <input value="{{ form.tagsText }}" onChange="{{ setTags }}" placeholder="processo, checklist" style="height:42px;padding:0 12px;border-radius:8px;background:var(--surface);border:1px solid var(--border-light);color:var(--text);font-family:var(--font-secondary);font-size:13.5px;outline:none;" />
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:flex-end;gap:10px;">
+          <button onClick="{{ closeUpload }}" style="height:42px;padding:0 18px;border-radius:9px;background:transparent;border:1px solid var(--border-light);color:var(--text-secondary);font-family:var(--font-primary);font-weight:600;font-size:13px;cursor:pointer;">Cancelar</button>
+          <button onClick="{{ saveUpload }}" disabled="{{ saveDisabled }}" style="{{ saveBtnStyle }}"><span class="ms-icon" style="font-size:18px;">library_add</span>Salvar na biblioteca</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ projModalOpen }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ closeProjModal }}" style="position:fixed;inset:0;background:rgba(0,0,0,0.55);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;z-index:50;padding:24px;">
+      <div onClick="{{ stop }}" style="width:min(480px,100%);background:var(--surface-elevated);border:1px solid var(--border);border-radius:16px;padding:24px 26px 22px;box-shadow:0 30px 70px rgba(0,0,0,0.6);">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:18px;">
+          <div>
+            <div style="font-family:var(--font-primary);font-weight:600;font-size:18px;color:var(--text);">{{ projModalTitle }}</div>
+            <div style="font-family:var(--font-secondary);font-size:12.5px;color:var(--text-muted);margin-top:3px;">{{ projModalSubtitle }}</div>
+          </div>
+          <button onClick="{{ closeProjModal }}" style="width:34px;height:34px;border-radius:8px;background:transparent;border:1px solid var(--border-light);color:var(--text-secondary);cursor:pointer;display:flex;align-items:center;justify-content:center;flex:none;"><span class="ms-icon" style="font-size:18px;">close</span></button>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:5px;margin-bottom:12px;">
+          <label style="font-family:var(--font-primary);font-weight:500;font-size:12px;color:var(--text-secondary);">Nome do projeto</label>
+          <input value="{{ projForm.name }}" onChange="{{ setProjName }}" placeholder="Ex.: Cliente X · App Mobile" style="height:42px;padding:0 12px;border-radius:8px;background:var(--surface);border:1px solid var(--border-light);color:var(--text);font-family:var(--font-secondary);font-size:13.5px;outline:none;" />
+        </div>
+        <div style="display:flex;flex-direction:column;gap:5px;margin-bottom:14px;">
+          <label style="font-family:var(--font-primary);font-weight:500;font-size:12px;color:var(--text-secondary);">Descrição</label>
+          <textarea value="{{ projForm.description }}" onChange="{{ setProjDesc }}" placeholder="Do que se trata este projeto" rows="2" style="padding:10px 12px;border-radius:8px;background:var(--surface);border:1px solid var(--border-light);color:var(--text);font-family:var(--font-secondary);font-size:13.5px;outline:none;resize:vertical;line-height:1.5;"></textarea>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px;">
+          <label style="font-family:var(--font-primary);font-weight:500;font-size:12px;color:var(--text-secondary);">Cor</label>
+          <div style="display:flex;gap:10px;">
+            <sc-for list="{{ colorSwatches }}" as="s" hint-placeholder-count="6">
+              <button onClick="{{ s.onClick }}" title="Cor" style="{{ s.style }}"></button>
+            </sc-for>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:flex-end;gap:10px;">
+          <button onClick="{{ closeProjModal }}" style="height:42px;padding:0 18px;border-radius:9px;background:transparent;border:1px solid var(--border-light);color:var(--text-secondary);font-family:var(--font-primary);font-weight:600;font-size:13px;cursor:pointer;">Cancelar</button>
+          <button onClick="{{ saveProject }}" disabled="{{ projSaveDisabled }}" style="{{ projSaveBtnStyle }}"><span class="ms-icon" style="font-size:18px;">{{ projSaveIcon }}</span>{{ projSaveLabel }}</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ membersModalOpen }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ closeMembers }}" style="position:fixed;inset:0;background:rgba(0,0,0,0.55);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;z-index:50;padding:24px;">
+      <div onClick="{{ stop }}" style="width:min(500px,100%);max-height:90vh;overflow:auto;background:var(--surface-elevated);border:1px solid var(--border);border-radius:16px;padding:24px 26px 22px;box-shadow:0 30px 70px rgba(0,0,0,0.6);">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:18px;">
+          <div>
+            <div style="font-family:var(--font-primary);font-weight:600;font-size:18px;color:var(--text);">Membros de {{ currentProjectName }}</div>
+            <div style="font-family:var(--font-secondary);font-size:12.5px;color:var(--text-muted);margin-top:3px;">Quem tem acesso às documentações e tarefas deste projeto.</div>
+          </div>
+          <button onClick="{{ closeMembers }}" style="width:34px;height:34px;border-radius:8px;background:transparent;border:1px solid var(--border-light);color:var(--text-secondary);cursor:pointer;display:flex;align-items:center;justify-content:center;flex:none;"><span class="ms-icon" style="font-size:18px;">close</span></button>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;">
+          <sc-for list="{{ membersList }}" as="m" hint-placeholder-count="3">
+            <div style="display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:10px;background:var(--surface);border:1px solid var(--border-light);">
+              <div style="{{ m.avatar }}">{{ m.initials }}</div>
+              <div style="display:flex;flex-direction:column;min-width:0;flex:1;">
+                <span style="font-family:var(--font-primary);font-weight:600;font-size:13px;color:var(--text);">{{ m.name }}</span>
+                <span style="font-family:var(--font-secondary);font-size:11px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ m.email }}</span>
+              </div>
+              <sc-if value="{{ m.isOwner }}" hint-placeholder-val="{{ false }}">
+                <span style="font-family:var(--font-primary);font-weight:600;font-size:10px;letter-spacing:0.05em;text-transform:uppercase;color:var(--primary);background:var(--primary-subtle);border:1px solid rgba(229,72,77,0.3);border-radius:6px;padding:3px 8px;">Dono</span>
+              </sc-if>
+              <sc-if value="{{ m.canRemove }}" hint-placeholder-val="{{ false }}">
+                <button onClick="{{ m.remove }}" title="Remover" style="width:30px;height:30px;border-radius:8px;background:transparent;border:1px solid var(--border-light);color:var(--text-muted);cursor:pointer;display:flex;align-items:center;justify-content:center;" style-hover="{{ dangerHover }}"><span class="ms-icon" style="font-size:16px;">person_remove</span></button>
+              </sc-if>
+            </div>
+          </sc-for>
+        </div>
+        <sc-if value="{{ hasAddable }}" hint-placeholder-val="{{ true }}">
+          <label style="font-family:var(--font-primary);font-weight:500;font-size:12px;color:var(--text-secondary);">Adicionar membro</label>
+          <select value="{{ addMemberValue }}" onChange="{{ addMember }}" style="width:100%;height:42px;margin-top:6px;padding:0 10px;border-radius:8px;background:var(--surface);border:1px solid var(--border-light);color:var(--text);font-family:var(--font-secondary);font-size:13.5px;outline:none;cursor:pointer;">
+            <option value="">Selecione um usuário…</option>
+            <sc-for list="{{ addableUsers }}" as="u" hint-placeholder-count="3">
+              <option value="{{ u.id }}">{{ u.label }}</option>
+            </sc-for>
+          </select>
+        </sc-if>
+        <sc-if value="{{ noAddable }}" hint-placeholder-val="{{ false }}">
+          <div style="font-family:var(--font-secondary);font-size:12px;color:var(--text-muted);text-align:center;padding:8px;">Todos os usuários do diretório já são membros.</div>
+        </sc-if>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ taskModalOpen }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ closeTask }}" style="position:fixed;inset:0;background:rgba(0,0,0,0.55);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;z-index:50;padding:24px;">
+      <div onClick="{{ stop }}" style="width:min(580px,100%);max-height:92vh;overflow:auto;background:var(--surface-elevated);border:1px solid var(--border);border-radius:16px;padding:24px 26px 22px;box-shadow:0 30px 70px rgba(0,0,0,0.6);">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:18px;">
+          <div style="font-family:var(--font-primary);font-weight:600;font-size:18px;color:var(--text);">{{ taskModalTitle }}</div>
+          <button onClick="{{ closeTask }}" style="width:34px;height:34px;border-radius:8px;background:transparent;border:1px solid var(--border-light);color:var(--text-secondary);cursor:pointer;display:flex;align-items:center;justify-content:center;flex:none;"><span class="ms-icon" style="font-size:18px;">close</span></button>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:5px;margin-bottom:12px;">
+          <label style="font-family:var(--font-primary);font-weight:500;font-size:12px;color:var(--text-secondary);">Título</label>
+          <input value="{{ taskForm.title }}" onChange="{{ setTaskTitle }}" placeholder="Ex.: Revisar guia da RMR" style="height:42px;padding:0 12px;border-radius:8px;background:var(--surface);border:1px solid var(--border-light);color:var(--text);font-family:var(--font-secondary);font-size:13.5px;outline:none;" />
+        </div>
+        <div style="display:flex;flex-direction:column;gap:5px;margin-bottom:12px;">
+          <label style="font-family:var(--font-primary);font-weight:500;font-size:12px;color:var(--text-secondary);">Descrição</label>
+          <textarea value="{{ taskForm.description }}" onChange="{{ setTaskDesc }}" placeholder="Detalhes da tarefa" rows="2" style="padding:10px 12px;border-radius:8px;background:var(--surface);border:1px solid var(--border-light);color:var(--text);font-family:var(--font-secondary);font-size:13.5px;outline:none;resize:vertical;line-height:1.5;"></textarea>
+        </div>
+        <div style="display:flex;gap:12px;margin-bottom:14px;">
+          <div style="flex:1;display:flex;flex-direction:column;gap:6px;">
+            <label style="font-family:var(--font-primary);font-weight:500;font-size:12px;color:var(--text-secondary);">Coluna</label>
+            <select value="{{ taskForm.status }}" onChange="{{ setTaskStatus }}" style="height:42px;padding:0 10px;border-radius:8px;background:var(--surface);border:1px solid var(--border-light);color:var(--text);font-family:var(--font-secondary);font-size:13.5px;outline:none;cursor:pointer;">
+              <sc-for list="{{ statusOptions }}" as="o" hint-placeholder-count="4"><option value="{{ o.id }}">{{ o.label }}</option></sc-for>
+            </select>
+          </div>
+          <div style="flex:1;display:flex;flex-direction:column;gap:6px;">
+            <label style="font-family:var(--font-primary);font-weight:500;font-size:12px;color:var(--text-secondary);">Prioridade</label>
+            <select value="{{ taskForm.priority }}" onChange="{{ setTaskPriority }}" style="height:42px;padding:0 10px;border-radius:8px;background:var(--surface);border:1px solid var(--border-light);color:var(--text);font-family:var(--font-secondary);font-size:13.5px;outline:none;cursor:pointer;">
+              <sc-for list="{{ priorityOptions }}" as="o" hint-placeholder-count="3"><option value="{{ o.id }}">{{ o.label }}</option></sc-for>
+            </select>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px;">
+          <label style="font-family:var(--font-primary);font-weight:500;font-size:12px;color:var(--text-secondary);">Responsáveis</label>
+          <div style="display:flex;flex-wrap:wrap;gap:7px;">
+            <sc-for list="{{ assigneeToggles }}" as="a" hint-placeholder-count="3">
+              <button onClick="{{ a.toggle }}" style="{{ a.style }}"><div style="{{ a.avatar }}">{{ a.initials }}</div>{{ a.name }}</button>
+            </sc-for>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;">
+          <label style="font-family:var(--font-primary);font-weight:500;font-size:12px;color:var(--text-secondary);">Referências</label>
+          <sc-if value="{{ hasTaskRefs }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;flex-wrap:wrap;gap:6px;">
+              <sc-for list="{{ taskRefChips }}" as="r" hint-placeholder-count="1">
+                <span style="{{ r.style }}"><span class="ms-icon" style="font-size:13px;">{{ r.icon }}</span>{{ r.label }}<button onClick="{{ r.remove }}" style="background:transparent;border:none;color:inherit;cursor:pointer;display:flex;align-items:center;padding:0;margin-left:2px;"><span class="ms-icon" style="font-size:14px;">close</span></button></span>
+              </sc-for>
+            </div>
+          </sc-if>
+          <div style="display:flex;gap:10px;">
+            <select value="{{ addDocValue }}" onChange="{{ addDocRef }}" style="flex:1;height:40px;padding:0 10px;border-radius:8px;background:var(--surface);border:1px solid var(--border-light);color:var(--text-secondary);font-family:var(--font-secondary);font-size:12.5px;outline:none;cursor:pointer;">
+              <option value="">+ Vincular documentação…</option>
+              <sc-for list="{{ docRefOptions }}" as="o" hint-placeholder-count="3"><option value="{{ o.id }}">{{ o.label }}</option></sc-for>
+            </select>
+            <select value="{{ addProjValue }}" onChange="{{ addProjRef }}" style="flex:1;height:40px;padding:0 10px;border-radius:8px;background:var(--surface);border:1px solid var(--border-light);color:var(--text-secondary);font-family:var(--font-secondary);font-size:12.5px;outline:none;cursor:pointer;">
+              <option value="">+ Vincular projeto/subprojeto…</option>
+              <sc-for list="{{ projRefOptions }}" as="o" hint-placeholder-count="3"><option value="{{ o.id }}">{{ o.label }}</option></sc-for>
+            </select>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+          <sc-if value="{{ isEditingTask }}" hint-placeholder-val="{{ false }}">
+            <button onClick="{{ deleteTask }}" style="height:42px;padding:0 14px;border-radius:9px;background:transparent;border:1px solid var(--border-light);color:var(--text-muted);font-family:var(--font-primary);font-weight:600;font-size:12.5px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;" style-hover="{{ dangerHover }}"><span class="ms-icon" style="font-size:17px;">delete</span>Excluir</button>
+          </sc-if>
+          <div style="display:flex;align-items:center;gap:10px;margin-left:auto;">
+            <button onClick="{{ closeTask }}" style="height:42px;padding:0 18px;border-radius:9px;background:transparent;border:1px solid var(--border-light);color:var(--text-secondary);font-family:var(--font-primary);font-weight:600;font-size:13px;cursor:pointer;">Cancelar</button>
+            <button onClick="{{ saveTask }}" disabled="{{ taskSaveDisabled }}" style="{{ taskSaveBtnStyle }}"><span class="ms-icon" style="font-size:18px;">check</span>{{ taskSaveLabel }}</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;dark&quot;,&quot;light&quot;],&quot;default&quot;:&quot;dark&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Aparência&quot;},&quot;showToc&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Aparência&quot;}}">
+const DOCS_KEY = 'biblioteca_conecta_docs_v1';
+const PROJ_KEY = 'biblioteca_projetos_v1';
+const AUTH_KEY = 'biblioteca_auth_v1';
+const SESS_KEY = 'biblioteca_sessao_v1';
+const USERS_KEY = 'biblioteca_usuarios_v1';
+const TASKS_KEY = 'biblioteca_tarefas_v1';
+const ME = 'u-you';
+
+class Component extends DCLogic {
+  state = {
+    ready: false,
+    authed: false, hasAccount: false, userEmail: '',
+    authMode: 'login', authEmail: '', authPass: '', authPass2: '', authError: '',
+    view: 'projects', currentProjectId: null, currentSubId: null, boardProjFilter: null,
+    projects: null, docs: null, users: null, tasks: null,
+    activeId: null, query: '', cat: 'all', tag: null,
+    uploadOpen: false, copiedId: null,
+    form: { title: '', description: '', category: 'geral', tagsText: '', content: '', fileName: '', subId: '' },
+    projModalOpen: false, projForm: { name: '', description: '', color: '#E5484D', parentId: null },
+    membersModalOpen: false,
+    taskModalOpen: false, editingTaskId: null,
+    taskForm: { title: '', description: '', status: 'todo', priority: 'med', assignees: [], refs: [] }
+  };
+
+  cats = [
+    { id: 'dados', label: 'Dados', icon: 'dataset', color: 'blue' },
+    { id: 'rmr', label: 'Reuniões (RMR)', icon: 'event_note', color: 'gold' },
+    { id: 'selo', label: 'Selo EAP', icon: 'verified', color: 'green' },
+    { id: 'powerbi', label: 'Power BI', icon: 'insert_chart', color: 'purple' },
+    { id: 'pesquisas', label: 'Pesquisas', icon: 'poll', color: 'teal' },
+    { id: 'indicadores', label: 'Indicadores', icon: 'trending_up', color: 'green' },
+    { id: 'organograma', label: 'Organograma', icon: 'account_tree', color: 'blue' },
+    { id: 'geral', label: 'Geral', icon: 'description', color: 'gold' }
+  ];
+  catColors = {
+    gold: { bg: 'rgba(229,72,77,0.14)', fg: '#FF7A7E' },
+    blue: { bg: 'rgba(33,150,243,0.12)', fg: '#64B5F6' },
+    green: { bg: 'rgba(76,175,80,0.12)', fg: '#81C784' },
+    purple: { bg: 'rgba(124,58,237,0.14)', fg: '#A78BFA' },
+    teal: { bg: 'rgba(23,162,184,0.14)', fg: '#4DD0E1' }
+  };
+  projColors = ['#E5484D', '#2A6FDB', '#1F8A5B', '#7C3AED', '#E6A800', '#17A2B8'];
+  columnsMeta = [
+    { status: 'todo', label: 'A fazer', color: '#A0A0A0' },
+    { status: 'doing', label: 'Em andamento', color: '#E5484D' },
+    { status: 'review', label: 'Em revisão', color: '#E6A800' },
+    { status: 'done', label: 'Concluído', color: '#1F8A5B' }
+  ];
+  priorityMeta = { low: { label: 'Baixa', color: '#4DD0E1' }, med: { label: 'Média', color: '#E6A800' }, high: { label: 'Alta', color: '#F87171' } };
+
+  componentDidMount() {
+    let auth = null, sess = null;
+    try { auth = JSON.parse(localStorage.getItem(AUTH_KEY) || 'null'); } catch (e) {}
+    try { sess = JSON.parse(localStorage.getItem(SESS_KEY) || 'null'); } catch (e) {}
+    const hasAccount = !!(auth && auth.email);
+    const authed = !!(hasAccount && sess && sess.email === auth.email && sess.exp > Date.now());
+
+    let projects = null, docs = null, users = null, tasks = null;
+    try { projects = JSON.parse(localStorage.getItem(PROJ_KEY) || 'null'); } catch (e) {}
+    try { docs = JSON.parse(localStorage.getItem(DOCS_KEY) || 'null'); } catch (e) {}
+    try { users = JSON.parse(localStorage.getItem(USERS_KEY) || 'null'); } catch (e) {}
+    try { tasks = JSON.parse(localStorage.getItem(TASKS_KEY) || 'null'); } catch (e) {}
+
+    if (!Array.isArray(users) || !users.length) { users = this.seedUsers(); this.persistUsers(users); }
+    if (!Array.isArray(projects) || !projects.length) { projects = this.seedProjects(); this.persistProjects(projects); }
+    if (!Array.isArray(docs)) { docs = this.seedDocs(); this.persistDocs(docs); }
+    if (!Array.isArray(tasks)) { tasks = this.seedTasks(); this.persistTasks(tasks); }
+
+    // migrar: subprojetos (instalações antigas sem parentId)
+    if (!projects.some(p => p.parentId)) {
+      const conecta = projects.find(p => p.id === 'proj-conecta');
+      if (conecta) {
+        projects = projects.concat(this.conectaSubs());
+        const remap = { 'seed-rmr': 'sub-conecta', 'seed-pesquisas': 'sub-conecta', 'seed-powerbi': 'sub-lobby', 'seed-selo': 'sub-sarah' };
+        docs = docs.map(d => remap[d.id] ? Object.assign({}, d, { projectId: remap[d.id] }) : d);
+        this.persistProjects(projects); this.persistDocs(docs);
+      }
+    }
+
+    // migrar docs sem projeto
+    const def = projects[0].id; let ch1 = false;
+    docs = docs.map(d => { if (!d.projectId) { ch1 = true; return Object.assign({}, d, { projectId: def }); } return d; });
+    if (ch1) this.persistDocs(docs);
+    // migrar projetos sem membros
+    const seedMembers = { 'proj-conecta': [ME, 'u-ana', 'u-bruno', 'u-carla'], 'proj-freela': [ME, 'u-diego'], 'proj-pessoal': [ME] };
+    let ch2 = false;
+    projects = projects.map(p => { if (!p.members) { ch2 = true; return Object.assign({}, p, { ownerId: p.ownerId || ME, members: seedMembers[p.id] || [ME] }); } return p; });
+    if (ch2) this.persistProjects(projects);
+
+    if (authed && auth) users = this.syncMe(users, auth.email);
+
+    this.setState({ ready: true, authed, hasAccount, userEmail: auth ? auth.email : '', authMode: hasAccount ? 'login' : 'register', projects, docs, users, tasks });
+  }
+
+  persistDocs(a) { try { localStorage.setItem(DOCS_KEY, JSON.stringify(a)); } catch (e) {} }
+  persistProjects(a) { try { localStorage.setItem(PROJ_KEY, JSON.stringify(a)); } catch (e) {} }
+  persistUsers(a) { try { localStorage.setItem(USERS_KEY, JSON.stringify(a)); } catch (e) {} }
+  persistTasks(a) { try { localStorage.setItem(TASKS_KEY, JSON.stringify(a)); } catch (e) {} }
+  setDocs(a, extra) { this.persistDocs(a); this.setState(Object.assign({ docs: a }, extra || {})); }
+
+  prettyName(email) {
+    const local = String(email).split('@')[0].replace(/[._-]+/g, ' ').trim();
+    return local.split(' ').filter(Boolean).map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') || 'Você';
+  }
+  initials(name) { return String(name).split(' ').filter(Boolean).map(w => w[0]).slice(0, 2).join('').toUpperCase() || 'US'; }
+  user(id) { return (this.state.users || []).find(u => u.id === id) || { id, name: 'Usuário', email: '', color: '#A0A0A0' }; }
+  syncMe(users, email) { return users.map(u => u.id === ME ? Object.assign({}, u, { email, name: this.prettyName(email) }) : u); }
+  avatarStyle(user, size, idx) {
+    const s = size || 26;
+    return { width: s + 'px', height: s + 'px', borderRadius: '50%', background: user.color || 'var(--primary)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-primary)', fontWeight: 700, fontSize: (s * 0.4) + 'px', border: '2px solid var(--surface-alt)', flex: 'none', marginLeft: idx ? '-8px' : '0', boxSizing: 'border-box' };
+  }
+
+  /* ===== AUTH ===== */
+  async sha(s) { const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s)); return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join(''); }
+  startSession(email) { try { localStorage.setItem(SESS_KEY, JSON.stringify({ email, exp: Date.now() + 7 * 24 * 3600 * 1000 })); } catch (e) {} }
+  async submitAuth() {
+    const { authMode, authEmail, authPass, authPass2 } = this.state;
+    const email = authEmail.trim().toLowerCase();
+    if (!/.+@.+\..+/.test(email)) { this.setState({ authError: 'Informe um e-mail válido.' }); return; }
+    if (authPass.length < 6) { this.setState({ authError: 'A senha deve ter ao menos 6 caracteres.' }); return; }
+    if (authMode === 'register') {
+      if (authPass !== authPass2) { this.setState({ authError: 'As senhas não coincidem.' }); return; }
+      const passHash = await this.sha(email + ':' + authPass);
+      try { localStorage.setItem(AUTH_KEY, JSON.stringify({ email, passHash })); } catch (e) {}
+      this.startSession(email);
+      const users = this.syncMe(this.state.users, email); this.persistUsers(users);
+      this.setState({ authed: true, hasAccount: true, userEmail: email, authError: '', authPass: '', authPass2: '', view: 'projects', currentProjectId: null, users });
+    } else {
+      let auth = null; try { auth = JSON.parse(localStorage.getItem(AUTH_KEY) || 'null'); } catch (e) {}
+      if (!auth) { this.setState({ authError: 'Nenhuma conta encontrada. Crie um acesso.', authMode: 'register' }); return; }
+      const passHash = await this.sha(email + ':' + authPass);
+      if (email !== auth.email || passHash !== auth.passHash) { this.setState({ authError: 'E-mail ou senha incorretos.' }); return; }
+      this.startSession(email);
+      const users = this.syncMe(this.state.users, email); this.persistUsers(users);
+      this.setState({ authed: true, userEmail: email, authError: '', authPass: '', view: 'projects', currentProjectId: null, users });
+    }
+  }
+  logout() { try { localStorage.removeItem(SESS_KEY); } catch (e) {} this.setState({ authed: false, authPass: '', authPass2: '', authError: '', authMode: 'login', view: 'projects', currentProjectId: null, activeId: null }); }
+  toggleAuthMode() { this.setState(s => ({ authMode: s.authMode === 'login' ? 'register' : 'login', authError: '', authPass: '', authPass2: '' })); }
+  af(key) { return e => { const v = e.target.value; this.setState({ [key]: v }); }; }
+  authKey(e) { if (e.key === 'Enter') this.submitAuth(); }
+
+  /* ===== PROJECTS ===== */
+  myProjects() { return (this.state.projects || []).filter(p => !p.parentId && (p.members || []).indexOf(ME) !== -1); }
+  subprojects(pid) { return (this.state.projects || []).filter(p => p.parentId === pid); }
+  projectTreeIds(pid) { return [pid].concat(this.subprojects(pid).map(s => s.id)); }
+  topProjectId(pid) { const p = this.project(pid); if (!p) return pid; return p.parentId || p.id; }
+  docsInScope(topId, subId) { const ids = subId ? [subId] : this.projectTreeIds(topId); const ds = (this.state.docs || []).filter(d => ids.indexOf(d.projectId) !== -1); ds.sort((a, b) => ((b.pinned ? 1 : 0) - (a.pinned ? 1 : 0)) || (b.updatedAt || '').localeCompare(a.updatedAt || '')); return ds; }
+  project(id) { return (this.state.projects || []).find(p => p.id === id) || null; }
+  updateProject(id, patch) { const projects = this.state.projects.map(p => p.id === id ? Object.assign({}, p, patch) : p); this.persistProjects(projects); this.setState({ projects }); }
+  openProjectAt(topId, subId, docId) {
+    const did = docId || ((this.docsInScope(topId, subId)[0] || {}).id || null);
+    this.setState({ view: 'library', currentProjectId: topId, currentSubId: subId || null, query: '', cat: 'all', tag: null, activeId: did });
+    if (this.scrollEl) this.scrollEl.scrollTop = 0;
+  }
+  openProject(id) { this.openProjectAt(id, null, null); }
+  openScope(pid, docId) { const p = this.project(pid); if (!p) return; this.openProjectAt(p.parentId || p.id, p.parentId ? p.id : null, docId || null); }
+  selectSub(subId) { const did = (this.docsInScope(this.state.currentProjectId, subId)[0] || {}).id || null; this.setState({ currentSubId: subId || null, cat: 'all', tag: null, query: '', activeId: did }); if (this.scrollEl) this.scrollEl.scrollTop = 0; }
+  goProjects() { this.setState({ view: 'projects' }); }
+  goBoard() { this.setState({ view: 'board' }); }
+  openProjModal() { this.setState({ projModalOpen: true, projForm: { name: '', description: '', color: '#E5484D', parentId: null } }); }
+  openSubprojModal() { this.setState({ projModalOpen: true, projForm: { name: '', description: '', color: '#2A6FDB', parentId: this.state.currentProjectId } }); }
+  closeProjModal() { this.setState({ projModalOpen: false }); }
+  pf(key) { return e => { const v = e.target.value; this.setState(s => ({ projForm: Object.assign({}, s.projForm, { [key]: v }) })); }; }
+  setProjColor(hex) { this.setState(s => ({ projForm: Object.assign({}, s.projForm, { color: hex }) })); }
+  saveProject() {
+    const f = this.state.projForm; if (!f.name.trim()) return;
+    const parent = f.parentId ? this.project(f.parentId) : null;
+    const members = parent ? (parent.members || [ME]).slice() : [ME];
+    const proj = { id: 'p' + Date.now().toString(36), parentId: f.parentId || null, name: f.name.trim(), description: f.description.trim() || 'Sem descrição.', color: f.color, ownerId: ME, members: members, createdAt: new Date().toISOString().slice(0, 10) };
+    const projects = this.state.projects.concat([proj]);
+    this.persistProjects(projects); this.setState({ projects, projModalOpen: false });
+    if (f.parentId) this.selectSub(proj.id); else this.openProject(proj.id);
+  }
+  deleteProject(id) {
+    const p = this.project(id); if (!p) return;
+    const isSub = !!p.parentId;
+    const ids = isSub ? [id] : this.projectTreeIds(id);
+    const msg = isSub ? 'Excluir este subprojeto e seus documentos?' : 'Excluir este projeto, seus subprojetos e TODOS os documentos dentro deles? Esta ação não pode ser desfeita.';
+    if (!window.confirm(msg)) return;
+    const removedDocs = this.state.docs.filter(d => ids.indexOf(d.projectId) !== -1).map(d => d.id);
+    const projects = this.state.projects.filter(pp => ids.indexOf(pp.id) === -1);
+    const docs = this.state.docs.filter(d => ids.indexOf(d.projectId) === -1);
+    const tasks = this.state.tasks.map(t => Object.assign({}, t, { projectId: ids.indexOf(t.projectId) !== -1 ? null : t.projectId, refs: (t.refs || []).filter(r => !(r.type === 'project' && ids.indexOf(r.id) !== -1) && !(r.type === 'doc' && removedDocs.indexOf(r.id) !== -1)) }));
+    this.persistProjects(projects); this.persistDocs(docs); this.persistTasks(tasks);
+    this.setState(s => {
+      const st = { projects, docs, tasks };
+      if (isSub) { if (s.currentSubId === id) { const tids = [s.currentProjectId].concat(projects.filter(x => x.parentId === s.currentProjectId).map(x => x.id)); const first = docs.filter(d => tids.indexOf(d.projectId) !== -1)[0]; st.currentSubId = null; st.activeId = first ? first.id : null; } }
+      else if (s.currentProjectId === id) { st.view = 'projects'; st.currentProjectId = null; st.currentSubId = null; }
+      return st;
+    });
+  }
+
+  /* ===== MEMBERS ===== */
+  openMembers() { this.setState({ membersModalOpen: true }); }
+  closeMembers() { this.setState({ membersModalOpen: false }); }
+  addMember(e) { const uid = e.target.value; if (!uid) return; const p = this.project(this.state.currentProjectId); if (!p) return; this.updateProject(p.id, { members: (p.members || []).concat([uid]) }); }
+  removeMember(uid) {
+    const p = this.project(this.state.currentProjectId); if (!p || uid === p.ownerId) return;
+    const members = (p.members || []).filter(m => m !== uid);
+    const tasks = this.state.tasks.map(t => t.projectId === p.id ? Object.assign({}, t, { assignees: (t.assignees || []).filter(a => a !== uid) }) : t);
+    this.persistTasks(tasks); this.setState({ tasks });
+    this.updateProject(p.id, { members });
+  }
+
+  /* ===== TASKS ===== */
+  openTaskModal(status) { this.setState({ taskModalOpen: true, editingTaskId: null, taskForm: { title: '', description: '', status: status || 'todo', priority: 'med', assignees: [ME], refs: [] } }); }
+  openTask(id) { const t = (this.state.tasks || []).find(x => x.id === id); if (!t) return; this.setState({ taskModalOpen: true, editingTaskId: id, taskForm: { title: t.title, description: t.description || '', status: t.status, priority: t.priority || 'med', assignees: (t.assignees || []).slice(), refs: (t.refs || []).slice() } }); }
+  closeTask() { this.setState({ taskModalOpen: false }); }
+  tf(key) { return e => { const v = e.target.value; this.setState(s => ({ taskForm: Object.assign({}, s.taskForm, { [key]: v }) })); }; }
+  toggleAssignee(uid) { this.setState(s => { const a = s.taskForm.assignees.slice(); const i = a.indexOf(uid); if (i === -1) a.push(uid); else a.splice(i, 1); return { taskForm: Object.assign({}, s.taskForm, { assignees: a }) }; }); }
+  addRef(type, id) { if (!id) return; this.setState(s => { const refs = s.taskForm.refs.slice(); if (refs.some(r => r.type === type && r.id === id)) return {}; refs.push({ type, id }); return { taskForm: Object.assign({}, s.taskForm, { refs }) }; }); }
+  removeRef(idx) { this.setState(s => { const refs = s.taskForm.refs.slice(); refs.splice(idx, 1); return { taskForm: Object.assign({}, s.taskForm, { refs }) }; }); }
+  saveTask() {
+    const f = this.state.taskForm; if (!f.title.trim()) return;
+    let tasks;
+    if (this.state.editingTaskId) {
+      tasks = this.state.tasks.map(t => t.id === this.state.editingTaskId ? Object.assign({}, t, { title: f.title.trim(), description: f.description.trim(), status: f.status, priority: f.priority, assignees: f.assignees.slice(), refs: f.refs.slice() }) : t);
+    } else {
+      const task = { id: 't' + Date.now().toString(36), projectId: null, title: f.title.trim(), description: f.description.trim(), status: f.status, priority: f.priority, assignees: f.assignees.slice(), refs: f.refs.slice(), createdAt: new Date().toISOString().slice(0, 10) };
+      tasks = this.state.tasks.concat([task]);
+    }
+    this.persistTasks(tasks); this.setState({ tasks, taskModalOpen: false });
+  }
+  deleteTask() { if (!this.state.editingTaskId) return; if (!window.confirm('Excluir esta tarefa?')) return; const tasks = this.state.tasks.filter(t => t.id !== this.state.editingTaskId); this.persistTasks(tasks); this.setState({ tasks, taskModalOpen: false }); }
+  moveTask(id, status) { if (!id) return; const tasks = this.state.tasks.map(t => t.id === id ? Object.assign({}, t, { status }) : t); this.persistTasks(tasks); this.setState({ tasks }); }
+  openDocRef(docId) {
+    const d = (this.state.docs || []).find(x => x.id === docId); if (!d) return;
+    this.setState({ taskModalOpen: false });
+    this.openScope(d.projectId, docId);
+  }
+  openProjectRef(id) { this.setState({ taskModalOpen: false }); this.openScope(id, null); }
+
+  /* ===== MARKDOWN / DOCS ===== */
+  cat(id) { return this.cats.find(c => c.id === id) || this.cats[this.cats.length - 1]; }
+  esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+  slug(s) { return String(s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || 'sec'; }
+  inline(s) { let t = this.esc(s); t = t.replace(/`([^`]+)`/g, (m, c) => '<code>' + c + '</code>'); t = t.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>'); t = t.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>'); return t; }
+  renderList(buf) { const type = /^\s*\d+\./.test(buf[0].trim()) ? 'ol' : 'ul'; const items = []; buf.forEach(l => { const m = l.match(/^\s*([-*+]|\d+\.)\s+(.*)$/); if (m) items.push(m[2]); else if (items.length) items[items.length - 1] += ' ' + l.trim(); }); return '<' + type + '>' + items.map(t => '<li>' + this.inline(t) + '</li>').join('') + '</' + type + '>'; }
+  mdToHtml(md) {
+    const lines = String(md).replace(/\r\n?/g, '\n').split('\n');
+    let html = '', i = 0; const toc = []; const used = {};
+    while (i < lines.length) {
+      const line = lines[i];
+      if (/^```/.test(line)) { i++; const buf = []; while (i < lines.length && !/^```/.test(lines[i])) { buf.push(lines[i]); i++; } i++; html += '<pre><code>' + this.esc(buf.join('\n')) + '</code></pre>'; continue; }
+      const h = line.match(/^(#{1,6})\s+(.*)$/);
+      if (h) { const lvl = h[1].length, text = h[2].trim(); let id = this.slug(text); if (used[id]) { id = id + '-' + (++used[id]); } else used[id] = 1; if (lvl >= 1 && lvl <= 3) toc.push({ id, level: lvl, text }); html += '<h' + lvl + ' id="' + id + '">' + this.inline(text) + '</h' + lvl + '>'; i++; continue; }
+      if (/^(-{3,}|\*{3,}|_{3,})\s*$/.test(line)) { html += '<hr>'; i++; continue; }
+      if (/^>\s?/.test(line)) { const buf = []; while (i < lines.length && /^>\s?/.test(lines[i])) { buf.push(lines[i].replace(/^>\s?/, '')); i++; } html += '<blockquote><p>' + this.inline(buf.join(' ')) + '</p></blockquote>'; continue; }
+      if (/^\|.*\|/.test(line) && i + 1 < lines.length && /^\|[\s:\-|]+\|\s*$/.test(lines[i + 1].trim())) {
+        const header = line.trim().replace(/^\||\|$/g, '').split('|').map(c => c.trim());
+        i += 2; const rows = [];
+        while (i < lines.length && /^\|.*\|/.test(lines[i])) { rows.push(lines[i].trim().replace(/^\||\|$/g, '').split('|').map(c => c.trim())); i++; }
+        html += '<table><thead><tr>' + header.map(c => '<th>' + this.inline(c) + '</th>').join('') + '</tr></thead><tbody>' + rows.map(r => '<tr>' + r.map(c => '<td>' + this.inline(c) + '</td>').join('') + '</tr>').join('') + '</tbody></table>'; continue;
+      }
+      if (/^\s*([-*+]|\d+\.)\s+/.test(line)) { const buf = []; while (i < lines.length && (/^\s*([-*+]|\d+\.)\s+/.test(lines[i]) || (buf.length && /^\s+\S/.test(lines[i])))) { buf.push(lines[i]); i++; } html += this.renderList(buf); continue; }
+      if (/^\s*$/.test(line)) { i++; continue; }
+      const buf = [line]; i++;
+      while (i < lines.length && !/^\s*$/.test(lines[i]) && !/^(#{1,6})\s/.test(lines[i]) && !/^```/.test(lines[i]) && !/^\s*([-*+]|\d+\.)\s+/.test(lines[i]) && !/^>\s?/.test(lines[i]) && !/^\|.*\|/.test(lines[i])) { buf.push(lines[i]); i++; }
+      html += '<p>' + this.inline(buf.join(' ')) + '</p>';
+    }
+    return { html, toc };
+  }
+  highlight(node) {
+    const q = (this.state.query || '').trim(); if (!node || q.length < 2) return;
+    const rx = new RegExp('(' + q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
+    const skip = { SCRIPT: 1, STYLE: 1, MARK: 1, CODE: 1, PRE: 1 };
+    const walk = (el) => { Array.from(el.childNodes).forEach(n => { if (n.nodeType === 3) { const txt = n.nodeValue; rx.lastIndex = 0; if (!rx.test(txt)) return; rx.lastIndex = 0; const frag = document.createDocumentFragment(); let last = 0, m; while ((m = rx.exec(txt))) { frag.appendChild(document.createTextNode(txt.slice(last, m.index))); const mk = document.createElement('mark'); mk.textContent = m[0]; frag.appendChild(mk); last = m.index + m[0].length; } frag.appendChild(document.createTextNode(txt.slice(last))); n.parentNode.replaceChild(frag, n); } else if (n.nodeType === 1 && !skip[n.tagName]) walk(n); }); };
+    walk(node);
+  }
+  scrollToHeading(id) { const c = this.scrollEl; if (!c) return; const el = c.querySelector('#' + (window.CSS && CSS.escape ? CSS.escape(id) : id)); if (el) { const top = el.getBoundingClientRect().top - c.getBoundingClientRect().top + c.scrollTop - 18; c.scrollTo({ top, behavior: 'smooth' }); } }
+  matches(text, q) { if (!q) return 0; let n = 0, i = 0; const t = String(text).toLowerCase(); while ((i = t.indexOf(q, i)) !== -1) { n++; i += q.length; } return n; }
+  formatDate(iso) { try { return new Date(iso + 'T12:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' }); } catch (e) { return iso; } }
+  readingTime(content) { const w = String(content).trim().split(/\s+/).filter(Boolean).length; return Math.max(1, Math.round(w / 200)) + ' min de leitura'; }
+  openDoc(id) { this.setState({ activeId: id }); if (this.scrollEl) this.scrollEl.scrollTop = 0; }
+  togglePin(id) { const docs = this.state.docs.map(d => d.id === id ? Object.assign({}, d, { pinned: !d.pinned }) : d); this.setDocs(docs); }
+  deleteDoc(id) { if (!window.confirm('Excluir este documento da biblioteca?')) return; const docs = this.state.docs.filter(d => d.id !== id); this.setDocs(docs, { activeId: this.state.activeId === id ? (docs.find(d => d.projectId === this.state.currentProjectId) || {}).id || null : this.state.activeId }); }
+  copyDoc(doc) { if (navigator.clipboard) navigator.clipboard.writeText(doc.content); this.setState({ copiedId: doc.id }); setTimeout(() => { if (this.state.copiedId === doc.id) this.setState({ copiedId: null }); }, 1600); }
+  downloadDoc(doc) { const blob = new Blob([doc.content], { type: 'text/markdown' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = this.slug(doc.title) + '.md'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 1000); }
+  openUpload() { this.setState({ uploadOpen: true, form: { title: '', description: '', category: 'geral', tagsText: '', content: '', fileName: '', subId: this.state.currentSubId || '' } }); }
+  closeUpload() { this.setState({ uploadOpen: false }); }
+  uf(key) { return e => { const v = e.target.value; this.setState(s => ({ form: Object.assign({}, s.form, { [key]: v }) })); }; }
+  readFile(file) { if (!file) return; const r = new FileReader(); r.onload = () => { const text = String(r.result || ''); this.setState(s => { const f = Object.assign({}, s.form, { content: text, fileName: file.name }); if (!f.title) { const h = text.match(/^#\s+(.+)$/m); f.title = h ? h[1].trim() : file.name.replace(/\.(md|markdown)$/i, ''); } if (!f.description) { const body = text.replace(/^#\s+.+$/m, '').split('\n').map(x => x.trim()).filter(x => x && !/^[#>\-*|`]/.test(x)); if (body[0]) f.description = body[0].slice(0, 140); } return { form: f }; }); }; r.readAsText(file); }
+  onFileInput(e) { this.readFile(e.target.files && e.target.files[0]); }
+  onDrop(e) { e.preventDefault(); this.readFile(e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]); }
+  onDragOver(e) { e.preventDefault(); }
+  saveUpload() {
+    const f = this.state.form; if (!f.title.trim() || !f.content.trim()) return;
+    const doc = { id: 'd' + Date.now().toString(36), projectId: this.state.form.subId || this.state.currentProjectId, title: f.title.trim(), description: f.description.trim() || 'Sem descrição.', category: f.category, tags: f.tagsText.split(',').map(t => t.trim()).filter(Boolean), content: f.content, pinned: false, updatedAt: new Date().toISOString().slice(0, 10) };
+    const docs = [doc].concat(this.state.docs);
+    this.setDocs(docs, { uploadOpen: false, activeId: doc.id, cat: 'all', query: '', tag: null });
+    if (this.scrollEl) this.scrollEl.scrollTop = 0;
+  }
+  chipStyle(active) {
+    const base = { display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '6px 11px', borderRadius: '999px', fontFamily: 'var(--font-primary)', fontWeight: 600, fontSize: '11.5px', cursor: 'pointer', border: '1px solid', transition: 'border-color 200ms var(--ease-standard), color 200ms, background 200ms', whiteSpace: 'nowrap' };
+    if (active) return Object.assign(base, { background: 'var(--primary-subtle)', color: 'var(--primary)', borderColor: 'rgba(229,72,77,0.5)' });
+    return Object.assign(base, { background: 'var(--surface)', color: 'var(--text-secondary)', borderColor: 'var(--border-light)' });
+  }
+  segStyle(active) { return { display: 'inline-flex', alignItems: 'center', gap: '6px', height: '32px', padding: '0 12px', borderRadius: '8px', border: 'none', cursor: 'pointer', fontFamily: 'var(--font-primary)', fontWeight: 600, fontSize: '12.5px', background: active ? 'var(--primary-subtle)' : 'transparent', color: active ? 'var(--primary)' : 'var(--text-secondary)' }; }
+  navBtnStyle(active) { return { display: 'inline-flex', alignItems: 'center', gap: '7px', height: '40px', padding: '0 14px', borderRadius: '10px', cursor: 'pointer', fontFamily: 'var(--font-primary)', fontWeight: 600, fontSize: '12.5px', border: '1px solid ' + (active ? 'rgba(229,72,77,0.5)' : 'var(--border-light)'), background: active ? 'var(--primary-subtle)' : 'transparent', color: active ? 'var(--primary)' : 'var(--text-secondary)' }; }
+  subChipStyle(active) { const base = { display: 'inline-flex', alignItems: 'center', gap: '7px', padding: '6px 10px', borderRadius: '9px', fontFamily: 'var(--font-primary)', fontWeight: 600, fontSize: '11.5px', cursor: 'pointer', border: '1px solid', transition: 'border-color 200ms var(--ease-standard), color 200ms, background 200ms', whiteSpace: 'nowrap' }; if (active) return Object.assign(base, { background: 'var(--primary-subtle)', color: 'var(--primary)', borderColor: 'rgba(229,72,77,0.5)' }); return Object.assign(base, { background: 'var(--surface)', color: 'var(--text-secondary)', borderColor: 'var(--border-light)' }); }
+
+  renderVals() {
+    const S = this.state;
+    const themeClass = (this.props.theme || 'dark') === 'light' ? 'light-theme' : '';
+    const showToc = this.props.showToc !== false;
+    const meUser = this.user(ME);
+    const base = {
+      themeClass, showToc,
+      isLoading: !S.ready, isLogin: S.ready && !S.authed, authed: S.authed,
+      isProjects: S.authed && S.view === 'projects',
+      isLibrary: S.authed && S.view === 'library' && !!S.currentProjectId,
+      isBoard: S.authed && S.view === 'board',
+      navProjActive: S.view === 'projects' || S.view === 'library',
+      navBoardActive: S.view === 'board',
+      goBoard: () => this.goBoard(),
+      clearSubBreadcrumb: () => this.selectSub(null),
+      ghostHover: { borderColor: 'var(--primary)', color: 'var(--primary)' },
+      dangerHover: { borderColor: 'rgba(220,53,69,0.6)', color: '#F87171' },
+      dashedHover: { borderColor: 'rgba(229,72,77,0.5)', color: 'var(--text-secondary)' },
+      uploadBtnHover: { transform: 'translateY(-2px)', boxShadow: '0 8px 22px rgba(229,72,77,0.42)' },
+      stop: (e) => e.stopPropagation(),
+      userEmail: S.userEmail, userInitials: this.initials(meUser.name),
+      logout: () => this.logout(), goProjects: () => this.goProjects()
+    };
+
+    // LOGIN
+    const isRegister = S.authMode === 'register';
+    Object.assign(base, {
+      authTitle: isRegister ? 'Criar acesso' : 'Entrar',
+      authSubtitle: isRegister ? 'Defina suas credenciais para proteger sua biblioteca.' : 'Acesse sua biblioteca de documentações.',
+      authCta: isRegister ? 'Criar e entrar' : 'Entrar', isRegister,
+      authEmail: S.authEmail, authPass: S.authPass, authPass2: S.authPass2, authError: S.authError,
+      setAuthEmail: this.af('authEmail'), setAuthPass: this.af('authPass'), setAuthPass2: this.af('authPass2'),
+      authKey: (e) => this.authKey(e), submitAuth: () => this.submitAuth(), toggleAuthMode: () => this.toggleAuthMode(),
+      authTogglePrompt: isRegister ? 'Já tem uma conta?' : 'Ainda não tem acesso?',
+      authToggleAction: isRegister ? 'Entrar' : 'Criar acesso'
+    });
+
+    // PROJECTS OVERVIEW
+    const docsAll = S.docs || [], tasksAll = S.tasks || [];
+    base.projectCards = this.myProjects().map(p => {
+      const treeIds = this.projectTreeIds(p.id);
+      const dc = docsAll.filter(d => treeIds.indexOf(d.projectId) !== -1).length;
+      const sc = this.subprojects(p.id).length;
+      const mem = (p.members || []);
+      const avatars = mem.slice(0, 4).map((uid, i) => { const u = this.user(uid); return { name: u.name, initials: this.initials(u.name), style: this.avatarStyle(u, 28, i) }; });
+      return {
+        id: p.id, name: p.name, description: p.description,
+        docCount: dc, subCount: sc,
+        avatars, hasExtra: mem.length > 4, extraCount: mem.length - 4,
+        extraStyle: Object.assign(this.avatarStyle({ color: 'var(--surface-light)' }, 28, 1), { color: 'var(--text-secondary)' }),
+        open: () => this.openProject(p.id),
+        del: (e) => { e.stopPropagation(); this.deleteProject(p.id); },
+        dotStyle: { width: '11px', height: '11px', borderRadius: '50%', background: p.color || 'var(--primary)', flex: 'none', boxShadow: '0 0 8px ' + (p.color || '#E5484D') + '66' },
+        style: { display: 'flex', flexDirection: 'column', gap: '8px', minHeight: '176px', padding: '18px', borderRadius: '14px', border: '1px solid var(--border-light)', borderTop: '3px solid ' + (p.color || 'var(--primary)'), background: 'var(--surface)', cursor: 'pointer', transition: 'transform 200ms var(--ease-standard), border-color 200ms, box-shadow 200ms' },
+        hover: { transform: 'translateY(-3px)', boxShadow: 'var(--elevation-3)', borderColor: 'rgba(229,72,77,0.4)' }
+      };
+    });
+    base.projModalOpen = S.projModalOpen; base.projForm = S.projForm;
+    const projParent = S.projForm.parentId ? this.project(S.projForm.parentId) : null;
+    base.projModalTitle = projParent ? 'Novo subprojeto' : 'Novo projeto';
+    base.projModalSubtitle = projParent ? ('Dentro de ' + projParent.name + ' · agrupa documentações específicas.') : 'Agrupe documentações e subprojetos relacionados.';
+    base.projSaveLabel = projParent ? 'Criar subprojeto' : 'Criar projeto';
+    base.projSaveIcon = projParent ? 'account_tree' : 'create_new_folder';
+    base.setProjName = this.pf('name'); base.setProjDesc = this.pf('description');
+    base.openProjModal = () => this.openProjModal(); base.closeProjModal = () => this.closeProjModal();
+    base.saveProject = () => this.saveProject(); base.projSaveDisabled = !S.projForm.name.trim();
+    base.colorSwatches = this.projColors.map(hex => ({ onClick: () => this.setProjColor(hex), style: { width: '34px', height: '34px', borderRadius: '9px', background: hex, border: 'none', cursor: 'pointer', boxShadow: S.projForm.color === hex ? '0 0 0 2px var(--surface-elevated), 0 0 0 4px ' + hex : 'none', transition: 'box-shadow 150ms' } }));
+    base.projSaveBtnStyle = { display: 'inline-flex', alignItems: 'center', gap: '8px', height: '42px', padding: '0 18px', borderRadius: '9px', border: 'none', fontFamily: 'var(--font-primary)', fontWeight: 700, fontSize: '13px', letterSpacing: '0.03em', cursor: base.projSaveDisabled ? 'not-allowed' : 'pointer', opacity: base.projSaveDisabled ? 0.5 : 1, background: 'var(--gradient-primary)', color: '#fff', boxShadow: base.projSaveDisabled ? 'none' : '0 4px 14px rgba(229,72,77,0.3)' };
+
+    const curProj = this.project(S.currentProjectId);
+    base.currentProjectName = curProj ? curProj.name : '';
+    base.currentProjectDot = { width: '9px', height: '9px', borderRadius: '50%', background: (curProj && curProj.color) || 'var(--primary)', flex: 'none' };
+    const projMembers = curProj ? (curProj.members || []) : [];
+    base.memberCountLabel = String(projMembers.length);
+    const curSub = S.currentSubId ? this.project(S.currentSubId) : null;
+    base.hasSub = !!curSub; base.currentSubName = curSub ? curSub.name : '';
+    base.currentSubDot = { width: '9px', height: '9px', borderRadius: '50%', background: (curSub && curSub.color) || 'var(--primary)', flex: 'none' };
+    base.showPrimary = S.view === 'library' || S.view === 'board';
+    base.primaryLabel = S.view === 'board' ? 'Nova tarefa' : 'Subir documento';
+    base.primaryIcon = S.view === 'board' ? 'add_task' : 'upload_file';
+    base.primaryAction = S.view === 'board' ? () => this.openTaskModal('todo') : () => this.openUpload();
+    base.navProjStyle = this.navBtnStyle(base.navProjActive);
+    base.navBoardStyle = this.navBtnStyle(base.navBoardActive);
+
+    // MEMBERS MODAL
+    base.membersModalOpen = S.membersModalOpen;
+    base.openMembers = () => this.openMembers(); base.closeMembers = () => this.closeMembers();
+    base.membersList = projMembers.map(uid => { const u = this.user(uid); const isOwner = curProj && uid === curProj.ownerId; return { name: u.name, email: u.email, initials: this.initials(u.name), avatar: this.avatarStyle(u, 38, 0), isOwner, canRemove: !isOwner, remove: () => this.removeMember(uid) }; });
+    const addable = (S.users || []).filter(u => projMembers.indexOf(u.id) === -1);
+    base.addableUsers = addable.map(u => ({ id: u.id, label: u.name + ' · ' + u.email }));
+    base.hasAddable = addable.length > 0; base.noAddable = addable.length === 0; base.addMemberValue = ''; base.addMember = (e) => this.addMember(e);
+
+    // BOARD GLOBAL (independente das documentações)
+    const allTasks = tasksAll.slice();
+    const taskTops = (t) => { const set = {}; if (t.projectId) set[this.topProjectId(t.projectId)] = 1; (t.refs || []).forEach(r => { if (r.type === 'project') set[this.topProjectId(r.id)] = 1; else if (r.type === 'doc') { const d = docsAll.find(x => x.id === r.id); if (d) set[this.topProjectId(d.projectId)] = 1; } }); return set; };
+    let boardTasks = allTasks;
+    if (S.boardProjFilter) boardTasks = allTasks.filter(t => taskTops(t)[S.boardProjFilter]);
+    base.boardSubtitle = boardTasks.length + (boardTasks.length === 1 ? ' tarefa · independente das documentações — arraste entre as colunas' : ' tarefas · independentes das documentações — arraste entre as colunas');
+    const filterChip = (id, label, count, active) => ({ id, label, count, onClick: () => this.setState({ boardProjFilter: id }), style: this.chipStyle(active), hover: active ? {} : { borderColor: 'rgba(229,72,77,0.4)', color: 'var(--text)' }, badgeStyle: { fontFamily: "'IBM Plex Mono', monospace", fontSize: '10px', fontWeight: 600, background: active ? 'rgba(229,72,77,0.18)' : 'var(--surface-light)', color: active ? 'var(--primary)' : 'var(--text-muted)', borderRadius: '6px', padding: '1px 6px' } });
+    base.boardFilters = [filterChip(null, 'Todos', allTasks.length, !S.boardProjFilter)].concat(this.myProjects().map(p => filterChip(p.id, p.name, allTasks.filter(t => taskTops(t)[p.id]).length, S.boardProjFilter === p.id)));
+    base.columns = this.columnsMeta.map(cm => {
+      const colTasks = boardTasks.filter(t => t.status === cm.status);
+      return {
+        status: cm.status, label: cm.label, count: colTasks.length, empty: colTasks.length === 0,
+        dotStyle: { width: '9px', height: '9px', borderRadius: '3px', background: cm.color, flex: 'none' },
+        addTask: () => this.openTaskModal(cm.status),
+        onDragOver: (e) => e.preventDefault(),
+        onDrop: (e) => { e.preventDefault(); this.moveTask(this.dragId, cm.status); this.dragId = null; },
+        style: { display: 'flex', flexDirection: 'column', minHeight: 0, background: 'var(--surface-alt)', border: '1px solid var(--border-light)', borderRadius: '14px', padding: '14px 10px 10px' },
+        tasks: colTasks.map(t => {
+          const pri = this.priorityMeta[t.priority] || this.priorityMeta.med;
+          const refs = (t.refs || []).map(r => {
+            if (r.type === 'doc') { const d = docsAll.find(x => x.id === r.id); return { icon: 'description', label: d ? d.title : 'Documento', onClick: (e) => { e.stopPropagation(); this.openDocRef(r.id); }, style: { display: 'inline-flex', alignItems: 'center', gap: '4px', maxWidth: '100%', padding: '2px 7px', borderRadius: '6px', background: 'var(--surface-light)', border: '1px solid var(--border-light)', color: 'var(--text-secondary)', fontFamily: 'var(--font-secondary)', fontSize: '10.5px', cursor: 'pointer', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' } }; }
+            const p = this.project(r.id); return { icon: 'folder', label: p ? p.name : 'Projeto', onClick: (e) => { e.stopPropagation(); this.openProjectRef(r.id); }, style: { display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '2px 7px', borderRadius: '6px', background: 'var(--primary-subtle)', border: '1px solid rgba(229,72,77,0.3)', color: 'var(--primary)', fontFamily: 'var(--font-secondary)', fontSize: '10.5px', cursor: 'pointer', whiteSpace: 'nowrap' } };
+          });
+          const assignees = (t.assignees || []).slice(0, 4).map((uid, i) => { const u = this.user(uid); return { name: u.name, initials: this.initials(u.name), style: this.avatarStyle(u, 24, i) }; });
+          return {
+            id: t.id, title: t.title, description: t.description, hasDesc: !!t.description,
+            hasRefs: refs.length > 0, refs, assignees,
+            priLabel: pri.label, priStyle: { display: 'inline-flex', alignItems: 'center', gap: '5px', fontFamily: 'var(--font-primary)', fontWeight: 600, fontSize: '10px', letterSpacing: '0.03em', textTransform: 'uppercase', color: pri.color }, priDot: { width: '7px', height: '7px', borderRadius: '50%', background: pri.color },
+            onDragStart: (e) => { this.dragId = t.id; if (e.dataTransfer) e.dataTransfer.effectAllowed = 'move'; },
+            open: () => this.openTask(t.id),
+            style: { display: 'flex', flexDirection: 'column', gap: '8px', padding: '12px', borderRadius: '11px', background: 'var(--surface)', border: '1px solid var(--border-light)', cursor: 'grab', transition: 'transform 150ms var(--ease-standard), border-color 200ms, box-shadow 200ms' },
+            hover: { borderColor: 'rgba(229,72,77,0.45)', boxShadow: 'var(--elevation-2)' }
+          };
+        })
+      };
+    });
+
+    // TASK MODAL
+    base.taskModalOpen = S.taskModalOpen; base.taskForm = S.taskForm; base.isEditingTask = !!S.editingTaskId;
+    base.taskModalTitle = S.editingTaskId ? 'Editar tarefa' : 'Nova tarefa';
+    base.taskSaveLabel = S.editingTaskId ? 'Salvar' : 'Criar tarefa';
+    base.setTaskTitle = this.tf('title'); base.setTaskDesc = this.tf('description'); base.setTaskStatus = this.tf('status'); base.setTaskPriority = this.tf('priority');
+    base.statusOptions = this.columnsMeta.map(c => ({ id: c.status, label: c.label }));
+    base.priorityOptions = [{ id: 'low', label: 'Baixa' }, { id: 'med', label: 'Média' }, { id: 'high', label: 'Alta' }];
+    base.assigneeToggles = (S.users || []).map(u => { const on = S.taskForm.assignees.indexOf(u.id) !== -1; return { toggle: () => this.toggleAssignee(u.id), name: u.name, initials: this.initials(u.name), avatar: this.avatarStyle(u, 22, 0), style: { display: 'inline-flex', alignItems: 'center', gap: '7px', padding: '4px 10px 4px 4px', borderRadius: '999px', border: '1px solid ' + (on ? 'rgba(229,72,77,0.5)' : 'var(--border-light)'), background: on ? 'var(--primary-subtle)' : 'var(--surface)', color: on ? 'var(--primary)' : 'var(--text-secondary)', fontFamily: 'var(--font-secondary)', fontSize: '12px', fontWeight: 500, cursor: 'pointer' } }; });
+    const projLabel = (p) => p.parentId ? (((this.project(p.parentId) || {}).name || '') + ' › ' + p.name) : p.name;
+    const mineProjects = (S.projects || []).filter(p => (p.members || []).indexOf(ME) !== -1);
+    const mineIds = mineProjects.map(p => p.id);
+    base.projRefOptions = mineProjects.slice().sort((a, b) => { const ta = this.topProjectId(a.id), tb = this.topProjectId(b.id); if (ta !== tb) return ta.localeCompare(tb); return (a.parentId ? 1 : 0) - (b.parentId ? 1 : 0); }).map(p => ({ id: p.id, label: projLabel(p) }));
+    base.docRefOptions = docsAll.filter(d => mineIds.indexOf(d.projectId) !== -1).map(d => { const p = this.project(d.projectId); return { id: d.id, label: (p ? projLabel(p) : '') + ' · ' + d.title }; });
+    base.addDocValue = ''; base.addProjValue = '';
+    base.addDocRef = (e) => { this.addRef('doc', e.target.value); }; base.addProjRef = (e) => { this.addRef('project', e.target.value); };
+    base.hasTaskRefs = (S.taskForm.refs || []).length > 0;
+    base.taskRefChips = (S.taskForm.refs || []).map((r, idx) => {
+      if (r.type === 'doc') { const d = docsAll.find(x => x.id === r.id); return { icon: 'description', label: d ? d.title : 'Documento', remove: () => this.removeRef(idx), style: { display: 'inline-flex', alignItems: 'center', gap: '5px', padding: '4px 8px', borderRadius: '7px', background: 'var(--surface-light)', border: '1px solid var(--border-light)', color: 'var(--text-secondary)', fontFamily: 'var(--font-secondary)', fontSize: '11.5px' } }; }
+      const p = this.project(r.id); return { icon: 'folder', label: p ? p.name : 'Projeto', remove: () => this.removeRef(idx), style: { display: 'inline-flex', alignItems: 'center', gap: '5px', padding: '4px 8px', borderRadius: '7px', background: 'var(--primary-subtle)', border: '1px solid rgba(229,72,77,0.3)', color: 'var(--primary)', fontFamily: 'var(--font-secondary)', fontSize: '11.5px' } };
+    });
+    base.saveTask = () => this.saveTask(); base.deleteTask = () => this.deleteTask(); base.closeTask = () => this.closeTask();
+    base.taskSaveDisabled = !S.taskForm.title.trim();
+    base.taskSaveBtnStyle = { display: 'inline-flex', alignItems: 'center', gap: '8px', height: '42px', padding: '0 18px', borderRadius: '9px', border: 'none', fontFamily: 'var(--font-primary)', fontWeight: 700, fontSize: '13px', letterSpacing: '0.03em', cursor: base.taskSaveDisabled ? 'not-allowed' : 'pointer', opacity: base.taskSaveDisabled ? 0.5 : 1, background: 'var(--gradient-primary)', color: '#fff', boxShadow: base.taskSaveDisabled ? 'none' : '0 4px 14px rgba(229,72,77,0.3)' };
+
+    // SUBPROJETOS + DOCS LIBRARY (escopado)
+    const topId = S.currentProjectId;
+    const subsList = this.subprojects(topId);
+    const treeDocIds = this.projectTreeIds(topId);
+    base.hasSubs = subsList.length > 0;
+    base.addSubproject = () => this.openSubprojModal();
+    base.canDeleteSub = !!S.currentSubId;
+    base.deleteSubAction = () => S.currentSubId && this.deleteProject(S.currentSubId);
+    const subChip = (id, label, count, active, dotColor) => ({ id, label, count, onClick: () => this.selectSub(id), style: this.subChipStyle(active), hover: active ? {} : { borderColor: 'rgba(229,72,77,0.4)', color: 'var(--text)' }, dotStyle: { width: '8px', height: '8px', borderRadius: '50%', background: dotColor, flex: 'none' }, badgeStyle: { fontFamily: "'IBM Plex Mono', monospace", fontSize: '10px', fontWeight: 600, background: active ? 'rgba(229,72,77,0.18)' : 'var(--surface-light)', color: active ? 'var(--primary)' : 'var(--text-muted)', borderRadius: '6px', padding: '1px 6px' } });
+    base.subChips = [subChip(null, 'Todo o projeto', docsAll.filter(d => treeDocIds.indexOf(d.projectId) !== -1).length, !S.currentSubId, (curProj && curProj.color) || 'var(--primary)')].concat(subsList.map(s => subChip(s.id, s.name, docsAll.filter(d => d.projectId === s.id).length, S.currentSubId === s.id, s.color || 'var(--primary)')));
+    const scopeDocIds = S.currentSubId ? [S.currentSubId] : treeDocIds;
+    const docs = docsAll.filter(d => scopeDocIds.indexOf(d.projectId) !== -1);
+    const q = S.query.trim().toLowerCase();
+    const catCount = {}; docs.forEach(d => { catCount[d.category] = (catCount[d.category] || 0) + 1; });
+    const chips = [];
+    const mkChip = (id, label, icon, count) => { const active = S.cat === id; return { id, label, icon, count, onClick: () => this.setState({ cat: id }), style: this.chipStyle(active), hover: active ? {} : { borderColor: 'rgba(229,72,77,0.4)', color: 'var(--text)' }, badgeStyle: { fontFamily: "'IBM Plex Mono', monospace", fontSize: '10px', fontWeight: 600, background: active ? 'rgba(229,72,77,0.18)' : 'var(--surface-light)', color: active ? 'var(--primary)' : 'var(--text-muted)', borderRadius: '6px', padding: '1px 6px' } }; };
+    chips.push(mkChip('all', 'Todos', 'apps', docs.length));
+    chips.push(mkChip('pinned', 'Fixados', 'push_pin', docs.filter(d => d.pinned).length));
+    this.cats.forEach(c => { if (catCount[c.id]) chips.push(mkChip(c.id, c.label, c.icon, catCount[c.id])); });
+    let filtered = docs.slice();
+    if (S.cat === 'pinned') filtered = filtered.filter(d => d.pinned);
+    else if (S.cat !== 'all') filtered = filtered.filter(d => d.category === S.cat);
+    if (S.tag) filtered = filtered.filter(d => (d.tags || []).some(t => t.toLowerCase() === S.tag.toLowerCase()));
+    if (q) filtered = filtered.filter(d => d.title.toLowerCase().includes(q) || (d.description || '').toLowerCase().includes(q) || (d.tags || []).some(t => t.toLowerCase().includes(q)) || d.content.toLowerCase().includes(q));
+    filtered.sort((a, b) => { if (q) { const ma = this.matches(a.content, q), mb = this.matches(b.content, q); if (mb !== ma) return mb - ma; } if (!!b.pinned !== !!a.pinned) return (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0); return (b.updatedAt || '').localeCompare(a.updatedAt || ''); });
+    base.list = filtered.map(d => {
+      const c = this.cat(d.category), cc = this.catColors[c.color]; const active = d.id === S.activeId; const mc = q ? this.matches(d.content, q) : 0;
+      return { id: d.id, title: d.title, description: d.description, tags: d.tags || [], catLabel: c.label, catIcon: c.icon,
+        catChipStyle: { display: 'inline-flex', alignItems: 'center', gap: '5px', padding: '3px 8px', borderRadius: '6px', background: cc.bg, color: cc.fg, fontFamily: 'var(--font-primary)', fontWeight: 600, fontSize: '10px', letterSpacing: '0.03em', textTransform: 'uppercase' },
+        hasMatch: mc > 0, matchLabel: mc + (mc === 1 ? ' ocorrência' : ' ocorrências'),
+        open: () => this.openDoc(d.id), togglePin: (e) => { e.stopPropagation(); this.togglePin(d.id); },
+        pinStyle: { background: 'transparent', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', padding: '2px', color: d.pinned ? 'var(--primary)' : 'var(--text-muted)', opacity: d.pinned ? 1 : 0.6 },
+        style: { display: 'flex', flexDirection: 'column', gap: '8px', padding: '14px', borderRadius: '12px', border: '1px solid', cursor: 'pointer', textAlign: 'left', transition: 'transform 200ms var(--ease-standard), border-color 200ms, background 200ms', background: active ? 'var(--surface-elevated)' : 'var(--surface)', borderColor: active ? 'rgba(229,72,77,0.6)' : 'var(--border-light)', boxShadow: active ? 'var(--glow-primary)' : 'none' },
+        hover: active ? {} : { transform: 'translateY(-2px)', borderColor: 'rgba(229,72,77,0.4)' } };
+    });
+    base.query = S.query; base.hasQuery = !!S.query; base.onQuery = (e) => this.setState({ query: e.target.value }); base.clearQuery = () => this.setState({ query: '' });
+    base.tag = S.tag; base.clearTag = () => this.setState({ tag: null }); base.chips = chips; base.listEmpty = filtered.length === 0;
+    base.resultLabel = (q || S.cat !== 'all' || S.tag) ? filtered.length + (filtered.length === 1 ? ' resultado' : ' resultados') : docs.length + (docs.length === 1 ? ' documento' : ' documentos');
+    const searching = !!(q || S.cat !== 'all' || S.tag);
+    base.emptyIcon = searching ? 'search_off' : 'note_add';
+    base.emptyTitle = searching ? 'Nenhum documento encontrado' : 'Projeto ainda sem documentos';
+    base.emptyHint = searching ? 'Ajuste a busca ou os filtros deste projeto.' : 'Use “Subir documento” para adicionar a primeira documentação aqui.';
+    const activeDoc = docs.find(d => d.id === S.activeId) || null;
+    let active = null, toc = [], articleEl = null, tocEmpty = false;
+    if (activeDoc) {
+      const c = this.cat(activeDoc.category), cc = this.catColors[c.color]; const parsed = this.mdToHtml(activeDoc.content);
+      toc = parsed.toc.map(t => ({ text: t.text, id: t.id, onClick: () => this.scrollToHeading(t.id), style: { display: 'block', padding: '5px 10px', paddingLeft: t.level === 3 ? '22px' : '10px', borderLeft: '2px solid transparent', borderRadius: '0 8px 8px 0', fontFamily: 'var(--font-secondary)', fontSize: t.level === 3 ? '12px' : '12.5px', color: 'var(--text-muted)', cursor: 'pointer', textDecoration: 'none', lineHeight: 1.4, marginBottom: '1px', transition: 'color 200ms, background 200ms, border-color 200ms' }, hover: { color: 'var(--primary)', background: 'var(--surface-light)', borderLeftColor: 'var(--primary)' } }));
+      tocEmpty = toc.length === 0;
+      articleEl = React.createElement('div', { key: activeDoc.id + '|' + S.query, className: 'md-body', ref: (n) => { if (n) this.highlight(n); }, dangerouslySetInnerHTML: { __html: parsed.html } });
+      active = { title: activeDoc.title, description: activeDoc.description, catLabel: c.label, catIcon: c.icon,
+        catChipStyle: { display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '5px 11px', borderRadius: '7px', background: cc.bg, color: cc.fg, fontFamily: 'var(--font-primary)', fontWeight: 600, fontSize: '11px', letterSpacing: '0.04em', textTransform: 'uppercase' },
+        dateLabel: 'Atualizado em ' + this.formatDate(activeDoc.updatedAt), reading: this.readingTime(activeDoc.content),
+        tags: (activeDoc.tags || []).map(t => ({ label: t, onClick: () => this.setState({ tag: t, cat: 'all' }) })),
+        copyIcon: S.copiedId === activeDoc.id ? 'check' : 'content_copy',
+        pinBtnStyle: { width: '38px', height: '38px', borderRadius: '9px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid ' + (activeDoc.pinned ? 'rgba(229,72,77,0.5)' : 'var(--border-light)'), background: activeDoc.pinned ? 'var(--primary-subtle)' : 'transparent', color: activeDoc.pinned ? 'var(--primary)' : 'var(--text-secondary)' } };
+    }
+    base.hasActive = !!activeDoc; base.noActive = !activeDoc; base.active = active; base.articleEl = articleEl; base.toc = toc; base.tocEmpty = tocEmpty;
+    base.emptyReaderTitle = filtered.length ? 'Selecione um documento' : 'Nada para ler ainda';
+    base.emptyReaderHint = filtered.length ? 'Escolha uma documentação na lista à esquerda para começar a ler.' : 'Este projeto ainda não tem documentos. Suba um arquivo .md para começar.';
+    base.setScrollRef = (el) => { this.scrollEl = el; };
+    base.toggleActivePin = () => activeDoc && this.togglePin(activeDoc.id);
+    base.copyActive = () => activeDoc && this.copyDoc(activeDoc);
+    base.downloadActive = () => activeDoc && this.downloadDoc(activeDoc);
+    base.deleteActive = () => activeDoc && this.deleteDoc(activeDoc.id);
+
+    // UPLOAD MODAL
+    const f = S.form; const hasFile = !!f.content; const saveDisabled = !(f.title.trim() && f.content.trim());
+    Object.assign(base, {
+      openUpload: () => this.openUpload(), closeUpload: () => this.closeUpload(),
+      uploadOpen: S.uploadOpen, form: S.form, hasFile, noFile: !hasFile,
+      onFileInput: (e) => this.onFileInput(e), onDrop: (e) => this.onDrop(e), onDragOver: (e) => this.onDragOver(e),
+      setTitle: this.uf('title'), setDescription: this.uf('description'), setTags: this.uf('tagsText'), setCategory: this.uf('category'),
+      catOptions: this.cats,
+      dropStyle: { display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', minHeight: '110px', padding: '18px', marginBottom: '16px', borderRadius: '12px', cursor: 'pointer', border: '1.5px dashed ' + (hasFile ? 'rgba(229,72,77,0.5)' : 'var(--border-light)'), background: hasFile ? 'var(--primary-subtle)' : 'var(--surface)' },
+      saveUpload: () => this.saveUpload(), saveDisabled,
+      saveBtnStyle: { display: 'inline-flex', alignItems: 'center', gap: '8px', height: '42px', padding: '0 18px', borderRadius: '9px', border: 'none', fontFamily: 'var(--font-primary)', fontWeight: 700, fontSize: '13px', letterSpacing: '0.03em', cursor: saveDisabled ? 'not-allowed' : 'pointer', opacity: saveDisabled ? 0.5 : 1, background: 'var(--gradient-primary)', color: '#fff', boxShadow: saveDisabled ? 'none' : '0 4px 14px rgba(229,72,77,0.3)' }
+    });
+    base.uploadSubs = subsList.map(s => ({ id: s.id, label: s.name }));
+    base.hasUploadSubs = subsList.length > 0;
+    base.setSubId = this.uf('subId');
+
+    return base;
+  }
+
+  seedUsers() {
+    return [
+      { id: ME, name: 'Você', email: 'voce@exemplo.com', color: '#E5484D' },
+      { id: 'u-ana', name: 'Ana Ribeiro', email: 'ana@sejaap.com.br', color: '#2A6FDB' },
+      { id: 'u-bruno', name: 'Bruno Costa', email: 'bruno@sejaap.com.br', color: '#1F8A5B' },
+      { id: 'u-carla', name: 'Carla Mendes', email: 'carla@sejaap.com.br', color: '#7C3AED' },
+      { id: 'u-diego', name: 'Diego Alves', email: 'diego@freela.com', color: '#E6A800' }
+    ];
+  }
+  conectaSubs() {
+    const mem = [ME, 'u-ana', 'u-bruno', 'u-carla'];
+    return [
+      { id: 'sub-lobby', parentId: 'proj-conecta', name: 'O Lobby', description: 'Portal de entrada e primeira experiência do cliente.', color: '#E6A800', ownerId: ME, members: mem.slice(), createdAt: '2026-05-22' },
+      { id: 'sub-conecta', parentId: 'proj-conecta', name: 'Conecta', description: 'Núcleo da plataforma: indicadores, RMR e pesquisas.', color: '#2A6FDB', ownerId: ME, members: mem.slice(), createdAt: '2026-05-22' },
+      { id: 'sub-sarah', parentId: 'proj-conecta', name: 'Sarah', description: 'Assistente e automações do Conecta AP.', color: '#7C3AED', ownerId: ME, members: mem.slice(), createdAt: '2026-05-25' }
+    ];
+  }
+  seedProjects() {
+    return [
+      { id: 'proj-conecta', parentId: null, name: 'Conecta AP', description: 'Documentação do sistema Conecta AP · SEJA AP.', color: '#E5484D', ownerId: ME, members: [ME, 'u-ana', 'u-bruno', 'u-carla'], createdAt: '2026-05-20' },
+      { id: 'proj-freela', parentId: null, name: 'Freelas', description: 'Documentações de projetos freelancer.', color: '#2A6FDB', ownerId: ME, members: [ME, 'u-diego'], createdAt: '2026-06-01' },
+      { id: 'proj-pessoal', parentId: null, name: 'Pessoal', description: 'Projetos, estudos e anotações pessoais.', color: '#1F8A5B', ownerId: ME, members: [ME], createdAt: '2026-06-05' }
+    ].concat(this.conectaSubs());
+  }
+  seedTasks() {
+    return [
+      { id: 'tk-1', projectId: 'proj-conecta', title: 'Revisar guia da RMR', description: 'Atualizar a seção de pauta com os novos tempos por etapa.', status: 'doing', priority: 'high', assignees: [ME, 'u-ana'], refs: [{ type: 'doc', id: 'seed-rmr' }], createdAt: '2026-06-20' },
+      { id: 'tk-2', projectId: 'proj-conecta', title: 'Publicar integração Power BI', description: 'Cadastrar o novo relatório no módulo de Relatórios Incorporados.', status: 'todo', priority: 'med', assignees: ['u-bruno'], refs: [{ type: 'doc', id: 'seed-powerbi' }, { type: 'project', id: 'proj-conecta' }], createdAt: '2026-06-22' },
+      { id: 'tk-3', projectId: 'proj-conecta', title: 'Auditar indicadores do Selo EAP', description: 'Conferir a pontuação dos 7 pilares antes da certificação.', status: 'review', priority: 'med', assignees: ['u-carla'], refs: [{ type: 'doc', id: 'seed-selo' }], createdAt: '2026-06-15' },
+      { id: 'tk-4', projectId: 'proj-conecta', title: 'Padronizar template de importação', description: 'Validar campos obrigatórios e exemplos do CSV.', status: 'todo', priority: 'low', assignees: [ME], refs: [{ type: 'doc', id: 'seed-dados' }], createdAt: '2026-06-19' },
+      { id: 'tk-5', projectId: 'proj-conecta', title: 'Consolidar pesquisa NPS do trimestre', description: 'Fechar o relatório de satisfação externa.', status: 'done', priority: 'low', assignees: ['u-ana'], refs: [{ type: 'doc', id: 'seed-pesquisas' }], createdAt: '2026-06-10' }
+    ];
+  }
+  seedDocs() {
+    const j = a => a.join('\n');
+    const rmr = j(['# Guia da Reunião Mensal de Resultados (RMR)', 'A RMR é o ritual central de acompanhamento entre o consultor e a empresa cliente. Nela revisamos o desempenho do mês e alinhamos o plano de ação.', '', '## Objetivo', '- Revisar os indicadores dos 7 pilares', '- Validar as metas do mês seguinte', '- Registrar decisões, prazos e responsáveis', '', '## Antes da reunião', '### Preparação do consultor', '1. Atualize todos os indicadores no Conecta AP', '2. Gere o relatório consolidado do período', '3. Revise as pendências da RMR anterior', '', '### Materiais necessários', '- Dashboard do cliente atualizado', '- Ata da reunião anterior', '- Plano de ação vigente', '', '## Durante a reunião', 'Siga a pauta padrão para manter o foco e respeitar o tempo de cada etapa.', '', '| Etapa | Tempo | Responsável |', '|---|---|---|', '| Abertura e contexto | 5 min | Consultor |', '| Revisão dos pilares | 30 min | Consultor |', '| Plano de ação | 15 min | Cliente |', '| Encerramento | 10 min | Ambos |', '', '## Após a reunião', '> Registre a ata em até 48h e compartilhe com o coordenador responsável.', '', 'Use o campo `observações` de cada indicador para anotar riscos e contexto que ajudem na próxima RMR.']);
+    const powerbi = j(['# Integração com Power BI', 'Como incorporar relatórios do Power BI diretamente no módulo de Relatórios Incorporados do Conecta AP.', '', '## Pré-requisitos', '- Conta Power BI Pro ativa', '- Workspace publicado da empresa', '- Permissão de Administrador no módulo Relatórios', '', '## Passo a passo', '### 1. Publicar o relatório', 'No Power BI Desktop, use a opção `Publicar` e selecione o workspace da empresa cliente.', '', '### 2. Obter o link de incorporação', 'Acesse `Arquivo → Incorporar relatório → Site ou portal` e copie a URL gerada.', '', '### 3. Cadastrar no Conecta AP', '1. Abra o módulo Relatórios Incorporados', '2. Clique em Novo relatório', '3. Cole a URL e associe ao pilar correspondente', '', '## Boas práticas', '- Nomeie os relatórios no padrão `Empresa - Pilar - Período`', '- Atualize o dataset ao menos semanalmente', '- Restrinja o acesso por perfil de usuário', '', '## Solução de problemas', '| Sintoma | Causa provável | Ação |', '|---|---|---|', '| Tela em branco | Permissão ausente | Revisar acesso no workspace |', '| Dados desatualizados | Atualização parada | Reagendar o refresh |', '| Erro de token | Sessão expirada | Refazer a autenticação |']);
+    const selo = j(['# Selo EAP — Critérios e Processo', 'O Selo de Excelência em Administração e Performance reconhece empresas que atingem maturidade de gestão nos 7 pilares.', '', '## O que é', 'Uma certificação anual concedida pela SEJA AP com base na pontuação consolidada dos indicadores acompanhados no Conecta AP.', '', '## Critérios de avaliação', 'Cada pilar contribui com uma parcela da pontuação total. São avaliados:', '- Estratégia e Planejamento', '- Finanças', '- Pessoas e Cultura', '- Processos', '- Clientes e Mercado', '- Inovação', '- Governança', '', '## Níveis', '| Nível | Pontuação | Validade |', '|---|---|---|', '| Bronze | 60 a 74 | 12 meses |', '| Prata | 75 a 89 | 12 meses |', '| Ouro | 90 a 100 | 12 meses |', '', '## Processo de certificação', '1. Diagnóstico inicial dos pilares', '2. Plano de evolução com o consultor', '3. Auditoria dos indicadores', '4. Emissão do selo', '', '> O selo deve ser renovado anualmente mediante nova auditoria de indicadores.']);
+    const dados = j(['# Estrutura de Dados e Importação', 'Padrões oficiais para o cadastro e a importação de dados no Conecta AP.', '', '## Hierarquia', 'A plataforma organiza os dados na estrutura Coordenador → Consultor → Empresa. Cada indicador pertence a uma empresa e a um pilar.', '', '## Modelo de importação', 'Utilize sempre o template CSV oficial para evitar erros de validação.', '', '### Campos obrigatórios', '- `cnpj` — apenas números, sem pontuação', '- `razao_social`', '- `consultor_email`', '- `pilar`', '- `indicador`', '- `valor`', '', '### Exemplo', '```', 'cnpj,razao_social,pilar,indicador,valor', '12345678000190,Empresa Exemplo,Finanças,Margem,18.5', '```', '', '## Validações', '- O CNPJ deve ser único por empresa', '- Valores numéricos usam ponto como separador decimal', '- Datas no formato AAAA-MM-DD', '', '## Erros comuns', '| Código | Descrição |', '|---|---|', '| E001 | CNPJ inválido |', '| E002 | Consultor não encontrado |', '| E003 | Pilar desconhecido |']);
+    const pesquisas = j(['# Pesquisa de Satisfação', 'Como aplicar e interpretar as pesquisas interna e externa dentro do Conecta AP.', '', '## Tipos', '- Pesquisa interna — clima e engajamento da equipe', '- Pesquisa externa — satisfação do cliente final via NPS', '', '## Cálculo do NPS', 'O NPS varia de -100 a 100 e é calculado a partir das notas de recomendação:', '- Promotores: notas 9 e 10', '- Neutros: notas 7 e 8', '- Detratores: notas de 0 a 6', '', 'A fórmula usada é `NPS = %Promotores - %Detratores`.', '', '## Periodicidade', '| Pesquisa | Frequência |', '|---|---|', '| Interna | Trimestral |', '| Externa | Mensal |', '', '## Interpretação', '> Um NPS acima de 50 é considerado excelente para consultorias de gestão.']);
+    return [
+      { id: 'seed-rmr', projectId: 'sub-conecta', title: 'Guia da Reunião Mensal de Resultados (RMR)', description: 'Passo a passo completo para preparar, conduzir e registrar uma RMR com a empresa cliente.', category: 'rmr', tags: ['reunião', 'processo', 'resultados'], content: rmr, pinned: true, updatedAt: '2026-06-18' },
+      { id: 'seed-powerbi', projectId: 'sub-lobby', title: 'Integração com Power BI', description: 'Como publicar e incorporar relatórios do Power BI no módulo de Relatórios Incorporados.', category: 'powerbi', tags: ['power bi', 'integração', 'dashboard'], content: powerbi, pinned: false, updatedAt: '2026-06-24' },
+      { id: 'seed-selo', projectId: 'sub-sarah', title: 'Selo EAP — Critérios e Processo', description: 'Critérios de avaliação, níveis e o processo de certificação do Selo de Excelência.', category: 'selo', tags: ['selo', 'certificação', 'critérios'], content: selo, pinned: false, updatedAt: '2026-05-30' },
+      { id: 'seed-dados', projectId: 'proj-conecta', title: 'Estrutura de Dados e Importação', description: 'Padrões de cadastro, template CSV, campos obrigatórios e validações de importação.', category: 'dados', tags: ['importação', 'csv', 'cadastro'], content: dados, pinned: false, updatedAt: '2026-06-10' },
+      { id: 'seed-pesquisas', projectId: 'sub-conecta', title: 'Pesquisa de Satisfação', description: 'Aplicação das pesquisas interna e externa e o cálculo do NPS.', category: 'pesquisas', tags: ['nps', 'satisfação', 'pesquisa'], content: pesquisas, pinned: false, updatedAt: '2026-06-27' }
+    ];
+  }
+}
+</script>
+</body>
+</html>

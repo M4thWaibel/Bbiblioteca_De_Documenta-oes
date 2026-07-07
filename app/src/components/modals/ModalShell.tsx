@@ -37,6 +37,10 @@ export const modalSelect: CSSProperties = {
   ...modalInput,
   cursor: 'pointer',
   padding: '0 10px',
+  // largura fixa ao container: opções longas truncam em vez de esticar o modal
+  width: '100%',
+  minWidth: 0,
+  maxWidth: '100%',
 }
 
 export const cancelBtn: CSSProperties = {

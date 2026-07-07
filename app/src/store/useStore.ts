@@ -2,7 +2,14 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import * as api from '../lib/api'
 import type { DocSearchHit } from '../lib/api'
 import { parseHash, buildHash } from '../lib/router'
-import { DEFAULT_CATEGORIES, catFrom, type Category } from '../lib/constants'
+import {
+  DEFAULT_CATEGORIES,
+  DEFAULT_STATUSES,
+  catFrom,
+  statusFrom,
+  type Category,
+  type Status,
+} from '../lib/constants'
 import type {
   Doc,
   Priority,
@@ -36,6 +43,7 @@ const emptyTaskForm = (status: TaskStatus, me: string): TaskForm => ({
   assignees: [me],
   refs: [],
   dueDate: '',
+  projectId: null,
 })
 
 export function useStore(me: string, myEmail: string) {
@@ -46,6 +54,8 @@ export function useStore(me: string, myEmail: string) {
   const [tasks, setTasks] = useState<Task[]>([])
   const [categories, setCategories] = useState<Category[]>([])
   const [categoriesModalOpen, setCategoriesModalOpen] = useState(false)
+  const [statuses, setStatuses] = useState<Status[]>([])
+  const [statusesModalOpen, setStatusesModalOpen] = useState(false)
   const [dataLoading, setDataLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -94,6 +104,7 @@ export function useStore(me: string, myEmail: string) {
       setDocs(snap.docs)
       setTasks(snap.tasks)
       setCategories(snap.categories)
+      setStatuses(snap.statuses)
       setError(null)
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e))
@@ -245,6 +256,10 @@ export function useStore(me: string, myEmail: string) {
   const category = useCallback(
     (id: string): Category => catFrom(id, categories.length ? categories : DEFAULT_CATEGORIES),
     [categories],
+  )
+  const status = useCallback(
+    (id: string): Status => statusFrom(id, statuses.length ? statuses : DEFAULT_STATUSES),
+    [statuses],
   )
   const subprojects = useCallback(
     (pid: string) => projects.filter((p) => p.parentId === pid),
@@ -523,6 +538,62 @@ export function useStore(me: string, myEmail: string) {
   )
 
   // ============================================================
+  // Status de tarefa (Update 2.0 · #3)
+  // ============================================================
+  const openStatuses = useCallback(() => setStatusesModalOpen(true), [])
+  const closeStatuses = useCallback(() => setStatusesModalOpen(false), [])
+  const createStatus = useCallback(
+    async (label: string, color: string) => {
+      const name = label.trim()
+      if (!name) return
+      const base =
+        name
+          .toLowerCase()
+          .normalize('NFD')
+          .replace(new RegExp('[\\u0300-\\u036f]', 'g'), '')
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/(^-|-$)/g, '') || 'status'
+      let id = base
+      let n = 1
+      while (statuses.some((s) => s.id === id)) id = base + '-' + ++n
+      const position = statuses.reduce((m, s) => Math.max(m, s.position), 0) + 1000
+      try {
+        await api.createStatus({ id, label: name, color, position })
+        await reload()
+      } catch (e) {
+        setError(e instanceof Error ? e.message : String(e))
+      }
+    },
+    [statuses, reload],
+  )
+  const updateStatus = useCallback(
+    async (id: string, patch: { label: string; color: string }) => {
+      if (!patch.label.trim()) return
+      try {
+        await api.updateStatus(id, patch)
+        await reload()
+      } catch (e) {
+        setError(e instanceof Error ? e.message : String(e))
+      }
+    },
+    [reload],
+  )
+  const deleteStatus = useCallback(
+    async (id: string) => {
+      if (id === 'todo' || id === 'done') return
+      if (!window.confirm('Excluir este status? As tarefas nele irão para "A fazer".')) return
+      try {
+        await api.reassignTasksStatus(id, 'todo')
+        await api.deleteStatus(id)
+        await reload()
+      } catch (e) {
+        setError(e instanceof Error ? e.message : String(e))
+      }
+    },
+    [reload],
+  )
+
+  // ============================================================
   // Documentos
   // ============================================================
   const openUpload = useCallback(() => {
@@ -704,6 +775,7 @@ export function useStore(me: string, myEmail: string) {
         assignees: [...t.assignees],
         refs: [...t.refs],
         dueDate: t.dueDate || '',
+        projectId: t.projectId,
       })
       setTaskModalOpen(true)
     },
@@ -852,6 +924,7 @@ export function useStore(me: string, myEmail: string) {
       docs,
       tasks,
       categories,
+      statuses,
       dataLoading,
       error,
       setError,
@@ -860,6 +933,7 @@ export function useStore(me: string, myEmail: string) {
       user,
       project,
       category,
+      status,
       subprojects,
       projectTreeIds,
       topProjectId,
@@ -917,6 +991,13 @@ export function useStore(me: string, myEmail: string) {
       createCategory,
       updateCategory,
       deleteCategory,
+      // status
+      statusesModalOpen,
+      openStatuses,
+      closeStatuses,
+      createStatus,
+      updateStatus,
+      deleteStatus,
       // documentos
       uploadOpen,
       form,
@@ -956,12 +1037,14 @@ export function useStore(me: string, myEmail: string) {
       docs,
       tasks,
       categories,
+      statuses,
       dataLoading,
       error,
       reload,
       user,
       project,
       category,
+      status,
       subprojects,
       projectTreeIds,
       topProjectId,
@@ -1009,6 +1092,12 @@ export function useStore(me: string, myEmail: string) {
       createCategory,
       updateCategory,
       deleteCategory,
+      statusesModalOpen,
+      openStatuses,
+      closeStatuses,
+      createStatus,
+      updateStatus,
+      deleteStatus,
       uploadOpen,
       form,
       editingDocId,

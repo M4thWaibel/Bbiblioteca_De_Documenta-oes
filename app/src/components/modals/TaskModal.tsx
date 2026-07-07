@@ -1,10 +1,10 @@
 import { useState, type CSSProperties } from 'react'
 import type { Store } from '../../store/useStore'
-import type { Priority, TaskStatus } from '../../lib/types'
+import type { Priority } from '../../lib/types'
 import { Icon } from '../ui/Icon'
 import { Hoverable } from '../ui/Hoverable'
 import { dangerHover, primaryBtnStyle, uploadBtnHover } from '../ui/styles'
-import { columnsMeta, priorityOptions } from '../../lib/constants'
+import { DEFAULT_STATUSES, priorityOptions } from '../../lib/constants'
 import { avatarStyle, initials } from '../../lib/format'
 import {
   ModalShell,
@@ -38,6 +38,7 @@ export function TaskModal({ store }: { store: Store }) {
   const editingId = store.editingTaskId
   const liveTask = editingId ? store.tasks.find((t) => t.id === editingId) : null
   const items = liveTask?.items || []
+  const statusList = store.statuses.length ? store.statuses : DEFAULT_STATUSES
 
   const projLabel = (p: import('../../lib/types').Project) =>
     p.parentId ? `${store.project(p.parentId)?.name || ''} › ${p.name}` : p.name
@@ -95,11 +96,11 @@ export function TaskModal({ store }: { store: Store }) {
           <label style={modalLabel}>Coluna</label>
           <select
             value={f.status}
-            onChange={(e) => store.patchTaskForm('status')(e.target.value as TaskStatus)}
+            onChange={(e) => store.patchTaskForm('status')(e.target.value)}
             style={modalSelect}
           >
-            {columnsMeta.map((c) => (
-              <option key={c.status} value={c.status}>
+            {statusList.map((c) => (
+              <option key={c.id} value={c.id}>
                 {c.label}
               </option>
             ))}
@@ -119,6 +120,22 @@ export function TaskModal({ store }: { store: Store }) {
             ))}
           </select>
         </div>
+      </div>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '14px' }}>
+        <label style={modalLabel}>Projeto / subprojeto (opcional)</label>
+        <select
+          value={f.projectId || ''}
+          onChange={(e) => store.patchTaskForm('projectId')(e.target.value)}
+          style={modalSelect}
+        >
+          <option value="">Nenhum</option>
+          {projRefOptions.map((o) => (
+            <option key={o.id} value={o.id}>
+              {o.label}
+            </option>
+          ))}
+        </select>
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '14px' }}>

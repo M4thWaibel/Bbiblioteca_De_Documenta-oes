@@ -46,7 +46,7 @@ export function Header({
         alignItems: 'center',
         gap: '14px',
         padding: '0 22px',
-        background: 'rgba(18,18,18,0.95)',
+        background: 'var(--header-bg)',
         backdropFilter: 'blur(20px)',
         borderBottom: '1px solid var(--border)',
         zIndex: 10,

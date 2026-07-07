@@ -57,6 +57,7 @@ export function useStore(me: string, myEmail: string) {
   // ---- modais / formulários ----
   const [uploadOpen, setUploadOpen] = useState(false)
   const [form, setForm] = useState<UploadForm>(emptyUploadForm())
+  const [editingDocId, setEditingDocId] = useState<string | null>(null)
   const [projModalOpen, setProjModalOpen] = useState(false)
   const [projForm, setProjForm] = useState<ProjectForm>({
     name: '',
@@ -313,9 +314,28 @@ export function useStore(me: string, myEmail: string) {
   // Documentos
   // ============================================================
   const openUpload = useCallback(() => {
+    setEditingDocId(null)
     setForm(emptyUploadForm(currentSubId || ''))
     setUploadOpen(true)
   }, [currentSubId])
+  const openEditDoc = useCallback(
+    (id: string) => {
+      const d = docs.find((x) => x.id === id)
+      if (!d) return
+      setEditingDocId(id)
+      setForm({
+        title: d.title,
+        description: d.description === 'Sem descrição.' ? '' : d.description,
+        category: d.category,
+        tagsText: d.tags.join(', '),
+        content: d.content,
+        fileName: '',
+        subId: d.projectId,
+      })
+      setUploadOpen(true)
+    },
+    [docs],
+  )
   const closeUpload = useCallback(() => setUploadOpen(false), [])
 
   const readFile = useCallback((file: File | null | undefined) => {
@@ -346,21 +366,28 @@ export function useStore(me: string, myEmail: string) {
   const saveUpload = useCallback(async () => {
     const f = form
     if (!f.title.trim() || !f.content.trim()) return
-    const projectId = f.subId || currentProjectId
-    if (!projectId) return
     try {
-      const id = await api.createDoc(f, projectId)
-      setUploadOpen(false)
-      setCat('all')
-      setQuery('')
-      setTag(null)
-      await reload()
-      setActiveId(id)
-      resetScroll()
+      if (editingDocId) {
+        await api.updateDoc(editingDocId, f)
+        setUploadOpen(false)
+        await reload()
+        setActiveId(editingDocId)
+      } else {
+        const projectId = f.subId || currentProjectId
+        if (!projectId) return
+        const id = await api.createDoc(f, projectId)
+        setUploadOpen(false)
+        setCat('all')
+        setQuery('')
+        setTag(null)
+        await reload()
+        setActiveId(id)
+        resetScroll()
+      }
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e))
     }
-  }, [form, currentProjectId, reload])
+  }, [form, editingDocId, currentProjectId, reload])
 
   const togglePin = useCallback(
     async (id: string) => {
@@ -596,7 +623,9 @@ export function useStore(me: string, myEmail: string) {
       // documentos
       uploadOpen,
       form,
+      editingDocId,
       openUpload,
+      openEditDoc,
       closeUpload,
       readFile,
       saveUpload,
@@ -669,7 +698,9 @@ export function useStore(me: string, myEmail: string) {
       removeMember,
       uploadOpen,
       form,
+      editingDocId,
       openUpload,
+      openEditDoc,
       closeUpload,
       readFile,
       saveUpload,

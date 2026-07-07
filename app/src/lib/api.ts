@@ -1,6 +1,5 @@
 import { supabase } from './supabase'
 import type { Doc, Profile, Project, Task, TaskForm, UploadForm } from './types'
-import { todayISO } from './format'
 
 // ============================================================
 // Helpers de mapeamento (linha do banco -> modelo de domínio)
@@ -184,12 +183,26 @@ export async function createDoc(form: UploadForm, projectId: string): Promise<st
       tags: form.tagsText.split(',').map((t) => t.trim()).filter(Boolean),
       content: form.content,
       pinned: false,
-      updated_at: todayISO(),
     })
     .select('id')
     .single()
   if (error) throw error
   return data.id as string
+}
+
+export async function updateDoc(id: string, form: UploadForm) {
+  const { error } = await supabase
+    .from('documents')
+    .update({
+      title: form.title.trim(),
+      description: form.description.trim() || 'Sem descrição.',
+      category: form.category,
+      tags: form.tagsText.split(',').map((t) => t.trim()).filter(Boolean),
+      content: form.content,
+      // updated_at é definido pelo trigger documents_set_updated_at
+    })
+    .eq('id', id)
+  if (error) throw error
 }
 
 export async function setDocPinned(id: string, pinned: boolean) {

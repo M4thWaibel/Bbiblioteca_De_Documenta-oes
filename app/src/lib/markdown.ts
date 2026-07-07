@@ -23,13 +23,26 @@ export function slug(s: string): string {
   )
 }
 
+// Permite apenas esquemas seguros (http/https/mailto) e URLs relativas/âncora,
+// bloqueando vetores como javascript:, data:, vbscript: — inclusive ofuscados
+// com espaços/controle (ex.: "java\tscript:"). Escapa aspas para não quebrar o
+// atributo href.
+function safeUrl(url: string): string {
+  const raw = String(url).trim()
+  const probe = raw.replace(/[\x00-\x20]/g, '').toLowerCase()
+  const scheme = probe.match(/^([a-z][a-z0-9+.-]*):/)
+  if (scheme && !['http', 'https', 'mailto'].includes(scheme[1])) return '#'
+  return raw.replace(/"/g, '%22')
+}
+
 function inline(s: string): string {
   let t = esc(s)
   t = t.replace(/`([^`]+)`/g, (_m, c) => '<code>' + c + '</code>')
   t = t.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
   t = t.replace(
     /\[([^\]]+)\]\(([^)]+)\)/g,
-    '<a href="$2" target="_blank" rel="noopener">$1</a>',
+    (_m, text, href) =>
+      '<a href="' + safeUrl(href) + '" target="_blank" rel="noopener">' + text + '</a>',
   )
   return t
 }

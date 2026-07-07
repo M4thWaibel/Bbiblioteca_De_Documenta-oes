@@ -591,6 +591,9 @@ function Reader({ store, doc }: { store: Store; doc: import('../lib/types').Doc 
               >
                 <Icon name="push_pin" size={18} />
               </button>
+              <Hoverable as="button" onClick={() => store.openEditDoc(doc.id)} title="Editar" hoverStyle={ghostHover} style={ghostAction}>
+                <Icon name="edit" size={18} />
+              </Hoverable>
               <Hoverable as="button" onClick={() => store.copyDoc(doc)} title="Copiar markdown" hoverStyle={ghostHover} style={ghostAction}>
                 <Icon name={store.copiedId === doc.id ? 'check' : 'content_copy'} size={18} />
               </Hoverable>

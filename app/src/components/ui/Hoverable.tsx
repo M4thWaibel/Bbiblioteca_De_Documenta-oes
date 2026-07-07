@@ -5,7 +5,6 @@ interface HoverableProps {
   style?: CSSProperties
   hoverStyle?: CSSProperties
   children?: ReactNode
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any
 }
 

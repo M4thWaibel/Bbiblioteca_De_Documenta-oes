@@ -326,12 +326,22 @@ export function AuthScreen() {
           }}
         >
           <span>{isRegister ? 'Já tem uma conta?' : 'Ainda não tem acesso?'}</span>
-          <a
+          <button
+            type="button"
             onClick={toggleMode}
-            style={{ color: 'var(--primary)', cursor: 'pointer', fontWeight: 600 }}
+            style={{
+              background: 'none',
+              border: 'none',
+              padding: 0,
+              color: 'var(--primary)',
+              cursor: 'pointer',
+              fontWeight: 600,
+              fontFamily: 'inherit',
+              fontSize: 'inherit',
+            }}
           >
             {isRegister ? 'Entrar' : 'Criar acesso'}
-          </a>
+          </button>
         </div>
 
         <div

@@ -561,9 +561,17 @@ export function useStore(me: string, myEmail: string) {
   )
 
   const copyDoc = useCallback((doc: Doc) => {
-    if (navigator.clipboard) navigator.clipboard.writeText(doc.content)
-    setCopiedId(doc.id)
-    setTimeout(() => setCopiedId((c) => (c === doc.id ? null : c)), 1600)
+    const done = () => {
+      setCopiedId(doc.id)
+      setTimeout(() => setCopiedId((c) => (c === doc.id ? null : c)), 1600)
+    }
+    if (navigator.clipboard?.writeText) {
+      navigator.clipboard
+        .writeText(doc.content)
+        .then(done, () => setError('Não foi possível copiar para a área de transferência.'))
+    } else {
+      setError('Cópia não suportada neste navegador.')
+    }
   }, [])
 
   const downloadDoc = useCallback((doc: Doc) => {

@@ -25,6 +25,8 @@ Scripts:
 | `npm run build` | typecheck + build de produção em `dist/` |
 | `npm run preview` | serve o build de produção localmente |
 | `npm run typecheck` | apenas checagem de tipos |
+| `npm run lint` | ESLint (regras TS + react-hooks) |
+| `npm test` | testes unitários (Vitest) |
 
 ---
 

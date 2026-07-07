@@ -29,6 +29,7 @@ export function slug(s: string): string {
 // atributo href.
 function safeUrl(url: string): string {
   const raw = String(url).trim()
+  // eslint-disable-next-line no-control-regex -- bloqueio intencional de chars de controle/espaço
   const probe = raw.replace(/[\x00-\x20]/g, '').toLowerCase()
   const scheme = probe.match(/^([a-z][a-z0-9+.-]*):/)
   if (scheme && !['http', 'https', 'mailto'].includes(scheme[1])) return '#'
@@ -38,24 +39,57 @@ function safeUrl(url: string): string {
 function inline(s: string): string {
   let t = esc(s)
   t = t.replace(/`([^`]+)`/g, (_m, c) => '<code>' + c + '</code>')
-  t = t.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+  // imagem (![alt](url)) antes do link — url passa por safeUrl, alt escapa aspas
+  t = t.replace(
+    /!\[([^\]]*)\]\(([^)]+)\)/g,
+    (_m, alt, src) =>
+      '<img src="' + safeUrl(src) + '" alt="' + String(alt).replace(/"/g, '&quot;') + '" loading="lazy" />',
+  )
   t = t.replace(
     /\[([^\]]+)\]\(([^)]+)\)/g,
     (_m, text, href) =>
       '<a href="' + safeUrl(href) + '" target="_blank" rel="noopener">' + text + '</a>',
   )
+  t = t.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+  t = t.replace(/(^|[^*])\*([^*\n]+)\*(?!\*)/g, '$1<em>$2</em>')
+  t = t.replace(/~~([^~]+)~~/g, '<del>$1</del>')
   return t
 }
 
+function renderItem(text: string): string {
+  const cb = text.match(/^\[([ xX])\]\s+(.*)$/)
+  if (cb) {
+    const checked = cb[1].toLowerCase() === 'x' ? ' checked' : ''
+    return '<li class="task"><input type="checkbox" disabled' + checked + '> ' + inline(cb[2]) + '</li>'
+  }
+  return '<li>' + inline(text) + '</li>'
+}
+
 function renderList(buf: string[]): string {
-  const type = /^\s*\d+\./.test(buf[0].trim()) ? 'ol' : 'ul'
-  const items: string[] = []
+  const items: { indent: number; ordered: boolean; text: string }[] = []
   buf.forEach((l) => {
-    const m = l.match(/^\s*([-*+]|\d+\.)\s+(.*)$/)
-    if (m) items.push(m[2])
-    else if (items.length) items[items.length - 1] += ' ' + l.trim()
+    const m = l.match(/^(\s*)([-*+]|\d+\.)\s+(.*)$/)
+    if (m) items.push({ indent: m[1].length, ordered: /^\d/.test(m[2]), text: m[3] })
+    else if (items.length) items[items.length - 1].text += ' ' + l.trim()
   })
-  return '<' + type + '>' + items.map((t) => '<li>' + inline(t) + '</li>').join('') + '</' + type + '>'
+  if (!items.length) return ''
+  let idx = 0
+  const build = (indent: number): string => {
+    const tag = items[idx].ordered ? 'ol' : 'ul'
+    let html = '<' + tag + '>'
+    while (idx < items.length && items[idx].indent >= indent) {
+      if (items[idx].indent > indent) {
+        // item mais indentado → sublista dentro do <li> anterior
+        html = html.slice(0, -5) + build(items[idx].indent) + '</li>'
+      } else {
+        const cur = items[idx]
+        idx++
+        html += renderItem(cur.text)
+      }
+    }
+    return html + '</' + tag + '>'
+  }
+  return build(items[0].indent)
 }
 
 export function mdToHtml(md: string): { html: string; toc: TocEntry[] } {

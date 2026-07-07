@@ -1,4 +1,4 @@
-import type { CSSProperties, ReactNode } from 'react'
+import { useEffect, useRef, type CSSProperties, type ReactNode } from 'react'
 import { Icon } from '../ui/Icon'
 
 export const modalLabel: CSSProperties = {
@@ -52,6 +52,9 @@ export const cancelBtn: CSSProperties = {
   cursor: 'pointer',
 }
 
+const FOCUSABLE =
+  'button, [href], input:not([type="hidden"]), select, textarea, [tabindex]:not([tabindex="-1"])'
+
 export function ModalShell({
   onClose,
   width,
@@ -61,6 +64,42 @@ export function ModalShell({
   width: number
   children: ReactNode
 }) {
+  const panelRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const restoreTo = document.activeElement as HTMLElement | null
+    const panel = panelRef.current
+    const visible = () =>
+      Array.from(panel?.querySelectorAll<HTMLElement>(FOCUSABLE) || []).filter(
+        (el) => el.offsetParent !== null,
+      )
+    // move o foco para dentro do diálogo
+    panel?.focus()
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.stopPropagation()
+        onClose()
+      } else if (e.key === 'Tab') {
+        const items = visible()
+        if (!items.length) return
+        const first = items[0]
+        const last = items[items.length - 1]
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault()
+          last.focus()
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault()
+          first.focus()
+        }
+      }
+    }
+    document.addEventListener('keydown', onKey)
+    return () => {
+      document.removeEventListener('keydown', onKey)
+      restoreTo?.focus?.()
+    }
+  }, [onClose])
+
   return (
     <div
       onClick={onClose}
@@ -77,6 +116,10 @@ export function ModalShell({
       }}
     >
       <div
+        ref={panelRef}
+        role="dialog"
+        aria-modal="true"
+        tabIndex={-1}
         onClick={(e) => e.stopPropagation()}
         style={{
           width: `min(${width}px,100%)`,
@@ -87,6 +130,7 @@ export function ModalShell({
           borderRadius: '16px',
           padding: '24px 26px 22px',
           boxShadow: '0 30px 70px rgba(0,0,0,0.6)',
+          outline: 'none',
         }}
       >
         {children}
@@ -99,6 +143,8 @@ export function ModalCloseButton({ onClose }: { onClose: () => void }) {
   return (
     <button
       onClick={onClose}
+      type="button"
+      aria-label="Fechar"
       style={{
         width: '34px',
         height: '34px',

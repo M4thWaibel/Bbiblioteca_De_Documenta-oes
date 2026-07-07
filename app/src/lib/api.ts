@@ -1,6 +1,6 @@
 import { supabase } from './supabase'
 import type { Doc, Profile, Project, Task, TaskForm, TaskItem, UploadForm } from './types'
-import type { Category } from './constants'
+import type { Category, Status } from './constants'
 
 // ============================================================
 // Helpers de mapeamento (linha do banco -> modelo de domínio)
@@ -41,6 +41,7 @@ export interface Snapshot {
   docs: Doc[]
   tasks: Task[]
   categories: Category[]
+  statuses: Status[]
 }
 
 export async function fetchSnapshot(): Promise<Snapshot> {
@@ -54,6 +55,7 @@ export async function fetchSnapshot(): Promise<Snapshot> {
     refsRes,
     itemsRes,
     catsRes,
+    statusesRes,
   ] = await Promise.all([
     supabase.from('profiles').select('id,name,email,color').order('name'),
     supabase.from('projects').select('*').order('created_at'),
@@ -68,6 +70,7 @@ export async function fetchSnapshot(): Promise<Snapshot> {
     supabase.from('task_refs').select('task_id,doc_id,ref_project_id'),
     supabase.from('task_items').select('task_id,id,text,done,position').order('position'),
     supabase.from('categories').select('*').order('position'),
+    supabase.from('task_statuses').select('*').order('position'),
   ])
 
   const firstError =
@@ -79,7 +82,8 @@ export async function fetchSnapshot(): Promise<Snapshot> {
     assigneesRes.error ||
     refsRes.error ||
     itemsRes.error ||
-    catsRes.error
+    catsRes.error ||
+    statusesRes.error
   if (firstError) throw firstError
 
   const membersByProject = new Map<string, string[]>()
@@ -141,8 +145,14 @@ export async function fetchSnapshot(): Promise<Snapshot> {
     color: row.color || '#a0a0a0',
     position: typeof row.position === 'number' ? row.position : 0,
   }))
+  const statuses: Status[] = (statusesRes.data || []).map((row) => ({
+    id: row.id,
+    label: row.label,
+    color: row.color || '#a0a0a0',
+    position: typeof row.position === 'number' ? row.position : 0,
+  }))
 
-  return { profiles: profilesRes.data || [], projects, docs, tasks, categories }
+  return { profiles: profilesRes.data || [], projects, docs, tasks, categories, statuses }
 }
 
 // ============================================================
@@ -355,10 +365,43 @@ export async function deleteCategory(id: string): Promise<void> {
 }
 
 // ============================================================
+// TASK STATUSES (Update 2.0 · #3) — colunas do quadro customizáveis
+// ============================================================
+export async function createStatus(s: {
+  id: string
+  label: string
+  color: string
+  position: number
+}): Promise<void> {
+  const { error } = await supabase
+    .from('task_statuses')
+    .insert({ id: s.id, label: s.label.trim(), color: s.color, position: s.position })
+  if (error) throw error
+}
+
+export async function updateStatus(id: string, patch: { label: string; color: string }): Promise<void> {
+  const { error } = await supabase
+    .from('task_statuses')
+    .update({ label: patch.label.trim(), color: patch.color })
+    .eq('id', id)
+  if (error) throw error
+}
+
+export async function reassignTasksStatus(from: string, to: string): Promise<void> {
+  const { error } = await supabase.from('tasks').update({ status: to }).eq('status', from)
+  if (error) throw error
+}
+
+export async function deleteStatus(id: string): Promise<void> {
+  const { error } = await supabase.from('task_statuses').delete().eq('id', id)
+  if (error) throw error
+}
+
+// ============================================================
 // REALTIME (Fase 3 · #5) — notifica mudanças nas tabelas do app
 // ============================================================
 export function subscribeToChanges(onChange: () => void): () => void {
-  const tables = ['documents', 'tasks', 'projects', 'project_members', 'task_assignees', 'task_refs', 'task_items', 'categories']
+  const tables = ['documents', 'tasks', 'projects', 'project_members', 'task_assignees', 'task_refs', 'task_items', 'categories', 'task_statuses']
   const channel = supabase.channel('biblioteca-changes')
   for (const table of tables) {
     channel.on('postgres_changes', { event: '*', schema: 'public', table }, () => onChange())
@@ -399,7 +442,7 @@ export async function createTask(form: TaskForm, createdBy: string): Promise<str
   const { data, error } = await supabase
     .from('tasks')
     .insert({
-      project_id: null,
+      project_id: form.projectId || null,
       title: form.title.trim(),
       description: form.description.trim(),
       status: form.status,
@@ -421,6 +464,7 @@ export async function updateTask(id: string, form: TaskForm) {
   const { error } = await supabase
     .from('tasks')
     .update({
+      project_id: form.projectId || null,
       title: form.title.trim(),
       description: form.description.trim(),
       status: form.status,

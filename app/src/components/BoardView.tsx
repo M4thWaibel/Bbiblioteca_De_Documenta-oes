@@ -4,7 +4,7 @@ import type { Priority, Task } from '../lib/types'
 import { Icon } from './ui/Icon'
 import { Hoverable } from './ui/Hoverable'
 import { badgeStyle, chipStyle, ghostHover } from './ui/styles'
-import { columnsMeta, priorityMeta, priorityOptions } from '../lib/constants'
+import { DEFAULT_STATUSES, priorityMeta, priorityOptions } from '../lib/constants'
 import { avatarStyle, formatDate, initials, todayISO } from '../lib/format'
 
 export function BoardView({ store }: { store: Store }) {
@@ -18,6 +18,7 @@ export function BoardView({ store }: { store: Store }) {
   useEffect(() => {
     localStorage.setItem('biblioteca_board_mode', mode)
   }, [mode])
+  const boardStatuses = store.statuses.length ? store.statuses : DEFAULT_STATUSES
 
   const taskTops = (t: Task): Record<string, boolean> => {
     const set: Record<string, boolean> = {}
@@ -172,6 +173,30 @@ export function BoardView({ store }: { store: Store }) {
               </option>
             ))}
           </select>
+          <Hoverable
+            as="button"
+            onClick={store.openStatuses}
+            title="Gerenciar status (colunas)"
+            hoverStyle={{ borderColor: 'rgba(var(--primary-rgb),0.4)', color: 'var(--text)' }}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '5px',
+              height: '30px',
+              padding: '0 10px',
+              borderRadius: '8px',
+              background: 'transparent',
+              border: '1px dashed var(--border-light)',
+              color: 'var(--text-muted)',
+              fontFamily: 'var(--font-primary)',
+              fontWeight: 600,
+              fontSize: '11px',
+              cursor: 'pointer',
+            }}
+          >
+            <Icon name="tune" size={14} />
+            Status
+          </Hoverable>
         </div>
       </div>
 
@@ -189,13 +214,13 @@ export function BoardView({ store }: { store: Store }) {
           overflowX: 'auto',
         }}
       >
-        {columnsMeta.map((cm) => {
+        {boardStatuses.map((cm) => {
           const colTasks = boardTasks
-            .filter((t) => t.status === cm.status)
+            .filter((t) => t.status === cm.id)
             .sort((a, b) => a.position - b.position)
           return (
             <div
-              key={cm.status}
+              key={cm.id}
               onDragOver={(e) => e.preventDefault()}
               onDrop={(e) => {
                 e.preventDefault()
@@ -203,7 +228,7 @@ export function BoardView({ store }: { store: Store }) {
                 store.dragIdRef.current = null
                 if (dragId) {
                   const last = colTasks[colTasks.length - 1]
-                  store.moveTask(dragId, cm.status, last ? last.position + 1000 : Date.now())
+                  store.moveTask(dragId, cm.id, last ? last.position + 1000 : Date.now())
                 }
               }}
               style={{
@@ -243,7 +268,7 @@ export function BoardView({ store }: { store: Store }) {
                 </span>
                 <Hoverable
                   as="button"
-                  onClick={() => store.openTaskModal(cm.status)}
+                  onClick={() => store.openTaskModal(cm.id)}
                   title="Nova tarefa"
                   hoverStyle={ghostHover}
                   style={{
@@ -278,14 +303,14 @@ export function BoardView({ store }: { store: Store }) {
                       if (!dragId || dragId === t.id) return
                       const prev = colTasks[i - 1]
                       const prevPos = prev ? prev.position : t.position - 2000
-                      store.moveTask(dragId, cm.status, (prevPos + t.position) / 2)
+                      store.moveTask(dragId, cm.id, (prevPos + t.position) / 2)
                     }}
                   />
                 ))}
                 {colTasks.length === 0 && (
                   <Hoverable
                     as="button"
-                    onClick={() => store.openTaskModal(cm.status)}
+                    onClick={() => store.openTaskModal(cm.id)}
                     hoverStyle={{ borderColor: 'rgba(var(--primary-rgb),0.5)', color: 'var(--text-secondary)' }}
                     style={{
                       border: '1.5px dashed var(--border-light)',
@@ -317,9 +342,10 @@ export function BoardView({ store }: { store: Store }) {
 }
 
 function TaskList({ store, tasks }: { store: Store; tasks: Task[] }) {
+  const sts = store.statuses.length ? store.statuses : DEFAULT_STATUSES
   const sorted = tasks.slice().sort((a, b) => {
-    const sa = columnsMeta.findIndex((c) => c.status === a.status)
-    const sb = columnsMeta.findIndex((c) => c.status === b.status)
+    const sa = sts.findIndex((c) => c.id === a.status)
+    const sb = sts.findIndex((c) => c.id === b.status)
     if (sa !== sb) return sa - sb
     return a.position - b.position
   })
@@ -374,7 +400,7 @@ function TaskList({ store, tasks }: { store: Store; tasks: Task[] }) {
             <span style={{ flex: '0 0 90px' }}>Resp.</span>
           </div>
           {sorted.map((t) => {
-            const sm = columnsMeta.find((c) => c.status === t.status) || columnsMeta[0]
+            const sm = store.status(t.status)
             const pri = priorityMeta[t.priority] || priorityMeta.med
             const overdue = !!t.dueDate && t.status !== 'done' && t.dueDate < todayISO()
             return (

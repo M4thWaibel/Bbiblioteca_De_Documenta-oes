@@ -151,7 +151,7 @@ create table if not exists public.tasks (
   project_id  uuid references public.projects(id) on delete set null,
   title       text not null,
   description text not null default '',
-  status      text not null default 'todo' check (status in ('todo','doing','review','done')),
+  status      text not null default 'todo', -- id de task_statuses (customizável, Update 2.0 #3)
   priority    text not null default 'med'  check (priority in ('low','med','high')),
   created_by  uuid references public.profiles(id) on delete set null default auth.uid(),
   created_at  timestamptz not null default now(),
@@ -362,13 +362,38 @@ insert into public.categories (id, label, icon, color, position) values
 on conflict (id) do nothing;
 
 -- ------------------------------------------------------------
+-- TASK STATUSES (Update 2.0 · #3) — colunas do quadro customizáveis
+-- tasks.status guarda o id (slug). 'todo' e 'done' são âncoras (não excluir).
+-- ------------------------------------------------------------
+create table if not exists public.task_statuses (
+  id         text primary key,
+  label      text not null,
+  color      text not null default '#a0a0a0',
+  position   double precision not null default 0,
+  created_at timestamptz not null default now()
+);
+
+alter table public.task_statuses enable row level security;
+create policy "task_statuses_select" on public.task_statuses for select to authenticated using (true);
+create policy "task_statuses_insert" on public.task_statuses for insert to authenticated with check (true);
+create policy "task_statuses_update" on public.task_statuses for update to authenticated using (true) with check (true);
+create policy "task_statuses_delete" on public.task_statuses for delete to authenticated using (true);
+
+insert into public.task_statuses (id, label, color, position) values
+  ('todo','A fazer','#A0A0A0',1000),
+  ('doing','Em andamento','#E5484D',2000),
+  ('review','Em revisão','#E6A800',3000),
+  ('done','Concluído','#1F8A5B',4000)
+on conflict (id) do nothing;
+
+-- ------------------------------------------------------------
 -- REALTIME (Fase 3 · #5) — publica mudanças das tabelas do app.
 -- O Realtime aplica o RLS por usuário nos eventos entregues.
 -- ------------------------------------------------------------
 do $$
 declare t text;
 begin
-  foreach t in array array['documents','tasks','projects','project_members','task_assignees','task_refs','task_items','categories']
+  foreach t in array array['documents','tasks','projects','project_members','task_assignees','task_refs','task_items','categories','task_statuses']
   loop
     if not exists (
       select 1 from pg_publication_tables

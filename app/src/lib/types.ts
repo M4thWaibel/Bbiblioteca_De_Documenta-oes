@@ -1,6 +1,7 @@
 // ===== Modelos de domínio (mapeados a partir das linhas do Supabase) =====
 
-export type TaskStatus = 'todo' | 'doing' | 'review' | 'done'
+// Status é um id (slug) de task_statuses — customizável (Update 2.0 · #3).
+export type TaskStatus = string
 export type Priority = 'low' | 'med' | 'high'
 export type RefType = 'doc' | 'project'
 
@@ -88,4 +89,5 @@ export interface TaskForm {
   assignees: string[]
   refs: TaskRef[]
   dueDate: string
+  projectId: string | null
 }

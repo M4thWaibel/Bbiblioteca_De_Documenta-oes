@@ -47,7 +47,11 @@ export async function fetchSnapshot(): Promise<Snapshot> {
       supabase.from('profiles').select('id,name,email,color').order('name'),
       supabase.from('projects').select('*').order('created_at'),
       supabase.from('project_members').select('project_id,user_id'),
-      supabase.from('documents').select('*'),
+      // #9: o corpo (content) NÃO vem no snapshot — é carregado sob demanda
+      // ao abrir o documento (getDocContent). A busca por conteúdo é server-side.
+      supabase
+        .from('documents')
+        .select('id,project_id,title,description,category,tags,pinned,updated_at'),
       supabase.from('tasks').select('*').order('created_at'),
       supabase.from('task_assignees').select('task_id,user_id'),
       supabase.from('task_refs').select('task_id,doc_id,ref_project_id'),
@@ -213,6 +217,53 @@ export async function setDocPinned(id: string, pinned: boolean) {
 export async function deleteDoc(id: string) {
   const { error } = await supabase.from('documents').delete().eq('id', id)
   if (error) throw error
+}
+
+// #9: carrega o corpo do documento sob demanda (não vem no snapshot).
+export async function getDocContent(id: string): Promise<string> {
+  const { data, error } = await supabase
+    .from('documents')
+    .select('content')
+    .eq('id', id)
+    .single()
+  if (error) throw error
+  return (data?.content as string) || ''
+}
+
+// ============================================================
+// BUSCA (Fase 2 · #4/#10) — full-text no servidor via RPC
+// ============================================================
+export interface DocSearchHit {
+  id: string
+  projectId: string
+  title: string
+  description: string
+  category: string
+  tags: string[]
+  pinned: boolean
+  updatedAt: string
+  headline: string // trecho com marcadores « » ao redor das ocorrências
+  rank: number
+}
+
+export async function searchDocuments(query: string): Promise<DocSearchHit[]> {
+  const q = query.trim()
+  if (!q) return []
+  const { data, error } = await supabase.rpc('search_documents', { q })
+  if (error) throw error
+  return (data || []).map((row: any) => ({
+    id: row.id,
+    projectId: row.project_id,
+    title: row.title,
+    description: row.description,
+    category: row.category,
+    tags: row.tags || [],
+    pinned: !!row.pinned,
+    updatedAt:
+      typeof row.updated_at === 'string' ? row.updated_at.slice(0, 10) : row.updated_at,
+    headline: row.headline || '',
+    rank: typeof row.rank === 'number' ? row.rank : Number(row.rank) || 0,
+  }))
 }
 
 // ============================================================

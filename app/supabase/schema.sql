@@ -332,13 +332,43 @@ create policy "task_items_update" on public.task_items for update to authenticat
 create policy "task_items_delete" on public.task_items for delete to authenticated using (private.can_access_task(task_id));
 
 -- ------------------------------------------------------------
+-- CATEGORIES (Update 2.0 · #1/#6b) — categorias globais customizáveis
+-- documents.category guarda o id (slug); categorias desconhecidas caem em 'geral' na UI.
+-- ------------------------------------------------------------
+create table if not exists public.categories (
+  id         text primary key,
+  label      text not null,
+  icon       text not null default 'description',
+  color      text not null default '#e5484d',
+  position   double precision not null default 0,
+  created_at timestamptz not null default now()
+);
+
+alter table public.categories enable row level security;
+create policy "categories_select" on public.categories for select to authenticated using (true);
+create policy "categories_insert" on public.categories for insert to authenticated with check (true);
+create policy "categories_update" on public.categories for update to authenticated using (true) with check (true);
+create policy "categories_delete" on public.categories for delete to authenticated using (true);
+
+insert into public.categories (id, label, icon, color, position) values
+  ('dados','Dados','dataset','#64B5F6',1000),
+  ('rmr','Reuniões (RMR)','event_note','#FF7A7E',2000),
+  ('selo','Selo EAP','verified','#81C784',3000),
+  ('powerbi','Power BI','insert_chart','#A78BFA',4000),
+  ('pesquisas','Pesquisas','poll','#4DD0E1',5000),
+  ('indicadores','Indicadores','trending_up','#81C784',6000),
+  ('organograma','Organograma','account_tree','#64B5F6',7000),
+  ('geral','Geral','description','#FF7A7E',8000)
+on conflict (id) do nothing;
+
+-- ------------------------------------------------------------
 -- REALTIME (Fase 3 · #5) — publica mudanças das tabelas do app.
 -- O Realtime aplica o RLS por usuário nos eventos entregues.
 -- ------------------------------------------------------------
 do $$
 declare t text;
 begin
-  foreach t in array array['documents','tasks','projects','project_members','task_assignees','task_refs','task_items']
+  foreach t in array array['documents','tasks','projects','project_members','task_assignees','task_refs','task_items','categories']
   loop
     if not exists (
       select 1 from pg_publication_tables

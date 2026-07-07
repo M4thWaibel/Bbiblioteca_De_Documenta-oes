@@ -1,5 +1,6 @@
 import { supabase } from './supabase'
 import type { Doc, Profile, Project, Task, TaskForm, TaskItem, UploadForm } from './types'
+import type { Category } from './constants'
 
 // ============================================================
 // Helpers de mapeamento (linha do banco -> modelo de domínio)
@@ -39,24 +40,35 @@ export interface Snapshot {
   projects: Project[]
   docs: Doc[]
   tasks: Task[]
+  categories: Category[]
 }
 
 export async function fetchSnapshot(): Promise<Snapshot> {
-  const [profilesRes, projectsRes, membersRes, docsRes, tasksRes, assigneesRes, refsRes, itemsRes] =
-    await Promise.all([
-      supabase.from('profiles').select('id,name,email,color').order('name'),
-      supabase.from('projects').select('*').order('created_at'),
-      supabase.from('project_members').select('project_id,user_id'),
-      // #9: o corpo (content) NÃO vem no snapshot — é carregado sob demanda
-      // ao abrir o documento (getDocContent). A busca por conteúdo é server-side.
-      supabase
-        .from('documents')
-        .select('id,project_id,title,description,category,tags,pinned,updated_at'),
-      supabase.from('tasks').select('*').order('position', { nullsFirst: false }).order('created_at'),
-      supabase.from('task_assignees').select('task_id,user_id'),
-      supabase.from('task_refs').select('task_id,doc_id,ref_project_id'),
-      supabase.from('task_items').select('task_id,id,text,done,position').order('position'),
-    ])
+  const [
+    profilesRes,
+    projectsRes,
+    membersRes,
+    docsRes,
+    tasksRes,
+    assigneesRes,
+    refsRes,
+    itemsRes,
+    catsRes,
+  ] = await Promise.all([
+    supabase.from('profiles').select('id,name,email,color').order('name'),
+    supabase.from('projects').select('*').order('created_at'),
+    supabase.from('project_members').select('project_id,user_id'),
+    // #9: o corpo (content) NÃO vem no snapshot — é carregado sob demanda
+    // ao abrir o documento (getDocContent). A busca por conteúdo é server-side.
+    supabase
+      .from('documents')
+      .select('id,project_id,title,description,category,tags,pinned,updated_at'),
+    supabase.from('tasks').select('*').order('position', { nullsFirst: false }).order('created_at'),
+    supabase.from('task_assignees').select('task_id,user_id'),
+    supabase.from('task_refs').select('task_id,doc_id,ref_project_id'),
+    supabase.from('task_items').select('task_id,id,text,done,position').order('position'),
+    supabase.from('categories').select('*').order('position'),
+  ])
 
   const firstError =
     profilesRes.error ||
@@ -66,7 +78,8 @@ export async function fetchSnapshot(): Promise<Snapshot> {
     tasksRes.error ||
     assigneesRes.error ||
     refsRes.error ||
-    itemsRes.error
+    itemsRes.error ||
+    catsRes.error
   if (firstError) throw firstError
 
   const membersByProject = new Map<string, string[]>()
@@ -121,7 +134,15 @@ export async function fetchSnapshot(): Promise<Snapshot> {
     items: itemsByTask.get(row.id) || [],
   }))
 
-  return { profiles: profilesRes.data || [], projects, docs, tasks }
+  const categories: Category[] = (catsRes.data || []).map((row) => ({
+    id: row.id,
+    label: row.label,
+    icon: row.icon || 'description',
+    color: row.color || '#a0a0a0',
+    position: typeof row.position === 'number' ? row.position : 0,
+  }))
+
+  return { profiles: profilesRes.data || [], projects, docs, tasks, categories }
 }
 
 // ============================================================
@@ -298,10 +319,46 @@ export async function searchDocuments(query: string): Promise<DocSearchHit[]> {
 }
 
 // ============================================================
+// CATEGORIAS (Update 2.0 · #1/#6b) — globais customizáveis
+// ============================================================
+export async function createCategory(cat: {
+  id: string
+  label: string
+  icon: string
+  color: string
+  position: number
+}): Promise<void> {
+  const { error } = await supabase.from('categories').insert({
+    id: cat.id,
+    label: cat.label.trim(),
+    icon: cat.icon || 'description',
+    color: cat.color,
+    position: cat.position,
+  })
+  if (error) throw error
+}
+
+export async function updateCategory(
+  id: string,
+  patch: { label: string; icon: string; color: string },
+): Promise<void> {
+  const { error } = await supabase
+    .from('categories')
+    .update({ label: patch.label.trim(), icon: patch.icon || 'description', color: patch.color })
+    .eq('id', id)
+  if (error) throw error
+}
+
+export async function deleteCategory(id: string): Promise<void> {
+  const { error } = await supabase.from('categories').delete().eq('id', id)
+  if (error) throw error
+}
+
+// ============================================================
 // REALTIME (Fase 3 · #5) — notifica mudanças nas tabelas do app
 // ============================================================
 export function subscribeToChanges(onChange: () => void): () => void {
-  const tables = ['documents', 'tasks', 'projects', 'project_members', 'task_assignees', 'task_refs', 'task_items']
+  const tables = ['documents', 'tasks', 'projects', 'project_members', 'task_assignees', 'task_refs', 'task_items', 'categories']
   const channel = supabase.channel('biblioteca-changes')
   for (const table of tables) {
     channel.on('postgres_changes', { event: '*', schema: 'public', table }, () => onChange())

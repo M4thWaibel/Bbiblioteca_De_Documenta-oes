@@ -3,7 +3,7 @@ import type { Store } from '../store/useStore'
 import { Icon } from './ui/Icon'
 import { Hoverable } from './ui/Hoverable'
 import { badgeStyle, chipStyle, dangerHover, ghostHover, subChipStyle } from './ui/styles'
-import { cat as getCat, catColors, cats } from '../lib/constants'
+import { catChip } from '../lib/constants'
 import { formatDate, readingTime } from '../lib/format'
 import { mdToHtml } from '../lib/markdown'
 import { MarkdownArticle } from './MarkdownArticle'
@@ -47,7 +47,7 @@ export function LibraryView({ store }: { store: Store }) {
     { id: 'all', label: 'Todos', icon: 'apps', count: scopedDocs.length },
     { id: 'pinned', label: 'Fixados', icon: 'push_pin', count: scopedDocs.filter((d) => d.pinned).length },
   ]
-  cats.forEach((c) => {
+  store.categories.forEach((c) => {
     if (catCount[c.id]) catChips.push({ id: c.id, label: c.label, icon: c.icon, count: catCount[c.id] })
   })
 
@@ -282,6 +282,30 @@ export function LibraryView({ store }: { store: Store }) {
                 </Hoverable>
               )
             })}
+            <Hoverable
+              as="button"
+              onClick={store.openCategories}
+              title="Gerenciar categorias"
+              hoverStyle={{ borderColor: 'rgba(var(--primary-rgb),0.4)', color: 'var(--text)' }}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '5px',
+                height: '30px',
+                padding: '0 10px',
+                borderRadius: '8px',
+                background: 'transparent',
+                border: '1px dashed var(--border-light)',
+                color: 'var(--text-muted)',
+                fontFamily: 'var(--font-primary)',
+                fontWeight: 600,
+                fontSize: '11px',
+                cursor: 'pointer',
+              }}
+            >
+              <Icon name="tune" size={14} />
+              Gerenciar
+            </Hoverable>
           </div>
           {store.tag && (
             <div
@@ -347,8 +371,8 @@ export function LibraryView({ store }: { store: Store }) {
           }}
         >
           {filtered.map((d) => {
-            const c = getCat(d.category)
-            const cc = catColors[c.color]
+            const c = store.category(d.category)
+            const cc = catChip(c.color)
             const active = d.id === store.activeId
             const hit = q ? hitById.get(d.id) : undefined
             return (
@@ -695,8 +719,8 @@ function SubChip({
 
 // ---------- leitor do documento ----------
 function Reader({ store, doc }: { store: Store; doc: import('../lib/types').Doc }) {
-  const c = getCat(doc.category)
-  const cc = catColors[c.color]
+  const c = store.category(doc.category)
+  const cc = catChip(c.color)
   // #9/#10: conteúdo é carregado sob demanda; parse memoizado (evita reparse por tecla).
   const loadingContent = !doc.content
   const parsed = useMemo(() => mdToHtml(doc.content), [doc.content])

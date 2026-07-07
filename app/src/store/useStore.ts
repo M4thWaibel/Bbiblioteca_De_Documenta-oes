@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import * as api from '../lib/api'
 import type { DocSearchHit } from '../lib/api'
 import { parseHash, buildHash } from '../lib/router'
+import { DEFAULT_CATEGORIES, catFrom, type Category } from '../lib/constants'
 import type {
   Doc,
   Priority,
@@ -43,6 +44,8 @@ export function useStore(me: string, myEmail: string) {
   const [projects, setProjects] = useState<Project[]>([])
   const [docs, setDocs] = useState<Doc[]>([])
   const [tasks, setTasks] = useState<Task[]>([])
+  const [categories, setCategories] = useState<Category[]>([])
+  const [categoriesModalOpen, setCategoriesModalOpen] = useState(false)
   const [dataLoading, setDataLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -90,6 +93,7 @@ export function useStore(me: string, myEmail: string) {
       setProjects(snap.projects)
       setDocs(snap.docs)
       setTasks(snap.tasks)
+      setCategories(snap.categories)
       setError(null)
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e))
@@ -237,6 +241,10 @@ export function useStore(me: string, myEmail: string) {
   const project = useCallback(
     (id: string | null): Project | null => (id ? projects.find((p) => p.id === id) || null : null),
     [projects],
+  )
+  const category = useCallback(
+    (id: string): Category => catFrom(id, categories.length ? categories : DEFAULT_CATEGORIES),
+    [categories],
   )
   const subprojects = useCallback(
     (pid: string) => projects.filter((p) => p.parentId === pid),
@@ -456,6 +464,62 @@ export function useStore(me: string, myEmail: string) {
       }
     },
     [project, currentProjectId, reload],
+  )
+
+  // ============================================================
+  // Categorias (Update 2.0 · #1/#6b)
+  // ============================================================
+  const openCategories = useCallback(() => setCategoriesModalOpen(true), [])
+  const closeCategories = useCallback(() => setCategoriesModalOpen(false), [])
+  const createCategory = useCallback(
+    async (label: string, icon: string, color: string) => {
+      const name = label.trim()
+      if (!name) return
+      const base =
+        name
+          .toLowerCase()
+          .normalize('NFD')
+          .replace(new RegExp('[\\u0300-\\u036f]', 'g'), '')
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/(^-|-$)/g, '') || 'cat'
+      let id = base
+      let n = 1
+      while (categories.some((c) => c.id === id)) id = base + '-' + ++n
+      const position = categories.reduce((m, c) => Math.max(m, c.position), 0) + 1000
+      try {
+        await api.createCategory({ id, label: name, icon: icon || 'description', color, position })
+        await reload()
+      } catch (e) {
+        setError(e instanceof Error ? e.message : String(e))
+      }
+    },
+    [categories, reload],
+  )
+  const updateCategory = useCallback(
+    async (id: string, patch: { label: string; icon: string; color: string }) => {
+      if (!patch.label.trim()) return
+      try {
+        await api.updateCategory(id, patch)
+        await reload()
+      } catch (e) {
+        setError(e instanceof Error ? e.message : String(e))
+      }
+    },
+    [reload],
+  )
+  const deleteCategory = useCallback(
+    async (id: string) => {
+      if (id === 'geral') return
+      if (!window.confirm('Excluir esta categoria? Documentos que a usam passarão a aparecer como "Geral".'))
+        return
+      try {
+        await api.deleteCategory(id)
+        await reload()
+      } catch (e) {
+        setError(e instanceof Error ? e.message : String(e))
+      }
+    },
+    [reload],
   )
 
   // ============================================================
@@ -787,6 +851,7 @@ export function useStore(me: string, myEmail: string) {
       projects,
       docs,
       tasks,
+      categories,
       dataLoading,
       error,
       setError,
@@ -794,6 +859,7 @@ export function useStore(me: string, myEmail: string) {
       // helpers
       user,
       project,
+      category,
       subprojects,
       projectTreeIds,
       topProjectId,
@@ -844,6 +910,13 @@ export function useStore(me: string, myEmail: string) {
       closeMembers,
       addMember,
       removeMember,
+      // categorias
+      categoriesModalOpen,
+      openCategories,
+      closeCategories,
+      createCategory,
+      updateCategory,
+      deleteCategory,
       // documentos
       uploadOpen,
       form,
@@ -882,11 +955,13 @@ export function useStore(me: string, myEmail: string) {
       projects,
       docs,
       tasks,
+      categories,
       dataLoading,
       error,
       reload,
       user,
       project,
+      category,
       subprojects,
       projectTreeIds,
       topProjectId,
@@ -928,6 +1003,12 @@ export function useStore(me: string, myEmail: string) {
       closeMembers,
       addMember,
       removeMember,
+      categoriesModalOpen,
+      openCategories,
+      closeCategories,
+      createCategory,
+      updateCategory,
+      deleteCategory,
       uploadOpen,
       form,
       editingDocId,

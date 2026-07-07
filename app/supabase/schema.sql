@@ -79,18 +79,38 @@ create trigger documents_set_updated_at
 -- ------------------------------------------------------------
 -- BUSCA FULL-TEXT (Fase 2 · #4/#10) — configuração 'portuguese'
 -- ------------------------------------------------------------
--- Coluna tsvector gerada (título + descrição + tags + conteúdo) + índice GIN.
-alter table public.documents
-  add column if not exists content_tsv tsvector
-  generated always as (
-    to_tsvector(
-      'portuguese',
-      coalesce(title, '') || ' ' ||
-      coalesce(description, '') || ' ' ||
-      coalesce(array_to_string(tags, ' '), '') || ' ' ||
-      coalesce(content, '')
-    )
-  ) stored;
+-- Coluna tsvector mantida por trigger. (Coluna GERADA foi rejeitada: a
+-- resolução do regconfig em to_tsvector não é considerada "immutable".)
+alter table public.documents add column if not exists content_tsv tsvector;
+
+create or replace function public.documents_tsv_refresh()
+returns trigger language plpgsql set search_path = public as $$
+begin
+  new.content_tsv := to_tsvector(
+    'portuguese',
+    coalesce(new.title, '') || ' ' ||
+    coalesce(new.description, '') || ' ' ||
+    coalesce(array_to_string(new.tags, ' '), '') || ' ' ||
+    coalesce(new.content, '')
+  );
+  return new;
+end;
+$$;
+
+drop trigger if exists documents_tsv_refresh on public.documents;
+create trigger documents_tsv_refresh
+  before insert or update on public.documents
+  for each row execute function public.documents_tsv_refresh();
+
+-- Backfill dos documentos existentes (no-op num banco recém-criado).
+update public.documents set content_tsv = to_tsvector(
+  'portuguese',
+  coalesce(title, '') || ' ' ||
+  coalesce(description, '') || ' ' ||
+  coalesce(array_to_string(tags, ' '), '') || ' ' ||
+  coalesce(content, '')
+);
+
 create index if not exists documents_content_tsv_idx
   on public.documents using gin (content_tsv);
 

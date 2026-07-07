@@ -29,6 +29,7 @@ export function slug(s: string): string {
 // atributo href.
 function safeUrl(url: string): string {
   const raw = String(url).trim()
+  // eslint-disable-next-line no-control-regex -- bloqueio intencional de chars de controle/espaço
   const probe = raw.replace(/[\x00-\x20]/g, '').toLowerCase()
   const scheme = probe.match(/^([a-z][a-z0-9+.-]*):/)
   if (scheme && !['http', 'https', 'mailto'].includes(scheme[1])) return '#'

@@ -16,6 +16,7 @@ import {
 
 export function UploadModal({ store }: { store: Store }) {
   const f = store.form
+  const isEditing = !!store.editingDocId
   const curProj = store.project(store.currentProjectId)
   const subsList = store.currentProjectId ? store.subprojects(store.currentProjectId) : []
   const hasFile = !!f.content
@@ -41,11 +42,17 @@ export function UploadModal({ store }: { store: Store }) {
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '12px', marginBottom: '18px' }}>
         <div>
           <div style={{ fontFamily: 'var(--font-primary)', fontWeight: 600, fontSize: '18px', color: 'var(--text)' }}>
-            Subir documentação
+            {isEditing ? 'Editar documentação' : 'Subir documentação'}
           </div>
           <div style={{ fontFamily: 'var(--font-secondary)', fontSize: '12.5px', color: 'var(--text-muted)', marginTop: '3px' }}>
-            Salvando em <strong style={{ color: 'var(--primary)' }}>{curProj?.name}</strong> · envie um
-            .md e padronize os campos.
+            {isEditing ? (
+              'Ajuste os campos e o conteúdo em Markdown.'
+            ) : (
+              <>
+                Salvando em <strong style={{ color: 'var(--primary)' }}>{curProj?.name}</strong> · envie
+                um .md e padronize os campos.
+              </>
+            )}
           </div>
         </div>
         <ModalCloseButton onClose={store.closeUpload} />
@@ -69,7 +76,7 @@ export function UploadModal({ store }: { store: Store }) {
           <>
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', fontFamily: 'var(--font-secondary)', fontSize: '13px', color: 'var(--text)' }}>
               <Icon name="description" size={24} style={{ color: 'var(--primary)' }} />
-              {f.fileName}
+              {f.fileName || 'Conteúdo carregado'}
             </span>
             <span style={{ fontFamily: 'var(--font-secondary)', fontSize: '11.5px', color: 'var(--text-muted)', marginTop: '6px' }}>
               Clique para trocar o arquivo
@@ -109,7 +116,7 @@ export function UploadModal({ store }: { store: Store }) {
         />
       </div>
 
-      {subsList.length > 0 && (
+      {!isEditing && subsList.length > 0 && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', marginBottom: '12px' }}>
           <label style={modalLabel}>Subprojeto</label>
           <select value={f.subId} onChange={(e) => store.patchForm('subId')(e.target.value)} style={modalSelect}>
@@ -145,6 +152,17 @@ export function UploadModal({ store }: { store: Store }) {
         </div>
       </div>
 
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', marginBottom: '16px' }}>
+        <label style={modalLabel}>Conteúdo (Markdown)</label>
+        <textarea
+          value={f.content}
+          onChange={(e) => store.patchForm('content')(e.target.value)}
+          placeholder={'# Título\n\nEscreva ou cole o conteúdo em Markdown…'}
+          rows={12}
+          style={{ ...modalTextarea, minHeight: '220px' }}
+        />
+      </div>
+
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '10px' }}>
         <button onClick={store.closeUpload} style={cancelBtn}>
           Cancelar
@@ -156,8 +174,8 @@ export function UploadModal({ store }: { store: Store }) {
           hoverStyle={disabled ? undefined : uploadBtnHover}
           style={primaryBtnStyle(disabled)}
         >
-          <Icon name="library_add" size={18} />
-          Salvar na biblioteca
+          <Icon name={isEditing ? 'save' : 'library_add'} size={18} />
+          {isEditing ? 'Salvar alterações' : 'Salvar na biblioteca'}
         </Hoverable>
       </div>
     </ModalShell>

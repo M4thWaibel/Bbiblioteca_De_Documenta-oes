@@ -50,6 +50,32 @@ create table if not exists public.documents (
 );
 create index if not exists documents_project_idx on public.documents(project_id);
 
+-- Atualiza documents.updated_at automaticamente no fuso America/Sao_Paulo.
+-- No INSERT sempre define a data; no UPDATE só quando um campo de conteúdo muda
+-- (fixar/desafixar não deve alterar "Atualizado em").
+create or replace function public.set_document_updated_at()
+returns trigger language plpgsql set search_path = public as $$
+begin
+  if tg_op = 'INSERT' then
+    new.updated_at := (now() at time zone 'America/Sao_Paulo')::date;
+  elsif tg_op = 'UPDATE' and (
+        new.title       is distinct from old.title
+     or new.description is distinct from old.description
+     or new.category    is distinct from old.category
+     or new.tags        is distinct from old.tags
+     or new.content     is distinct from old.content
+  ) then
+    new.updated_at := (now() at time zone 'America/Sao_Paulo')::date;
+  end if;
+  return new;
+end;
+$$;
+
+drop trigger if exists documents_set_updated_at on public.documents;
+create trigger documents_set_updated_at
+  before insert or update on public.documents
+  for each row execute function public.set_document_updated_at();
+
 create table if not exists public.tasks (
   id          uuid primary key default gen_random_uuid(),
   project_id  uuid references public.projects(id) on delete set null,

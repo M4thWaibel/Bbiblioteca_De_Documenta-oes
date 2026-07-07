@@ -10,6 +10,7 @@
   --surface-light: #282826;
   --surface-elevated: #323230;
   --surface-alt: #1a1a18;
+  --header-bg: rgba(18, 18, 18, 0.95);
 
   /* ===== Texto ===== */
   --text: #f0f0f0;
@@ -59,6 +60,7 @@
   --surface-light: #eae8e3;
   --surface-elevated: #ffffff;
   --surface-alt: #e8e6e1;
+  --header-bg: rgba(247, 246, 242, 0.9);
 
   --text: #1c1c1a;
   --text-secondary: #4a4a46;

@@ -313,13 +313,32 @@ create policy "refs_insert" on public.task_refs for insert to authenticated with
 create policy "refs_delete" on public.task_refs for delete to authenticated using (private.can_access_task(task_id));
 
 -- ------------------------------------------------------------
+-- TASK ITEMS (Update 2.0 · #5) — checklist interno das tarefas
+-- ------------------------------------------------------------
+create table if not exists public.task_items (
+  id         uuid primary key default gen_random_uuid(),
+  task_id    uuid not null references public.tasks(id) on delete cascade,
+  text       text not null,
+  done       boolean not null default false,
+  position   double precision not null default 0,
+  created_at timestamptz not null default now()
+);
+create index if not exists task_items_task_idx on public.task_items(task_id);
+
+alter table public.task_items enable row level security;
+create policy "task_items_select" on public.task_items for select to authenticated using (private.can_access_task(task_id));
+create policy "task_items_insert" on public.task_items for insert to authenticated with check (private.can_access_task(task_id));
+create policy "task_items_update" on public.task_items for update to authenticated using (private.can_access_task(task_id)) with check (private.can_access_task(task_id));
+create policy "task_items_delete" on public.task_items for delete to authenticated using (private.can_access_task(task_id));
+
+-- ------------------------------------------------------------
 -- REALTIME (Fase 3 · #5) — publica mudanças das tabelas do app.
 -- O Realtime aplica o RLS por usuário nos eventos entregues.
 -- ------------------------------------------------------------
 do $$
 declare t text;
 begin
-  foreach t in array array['documents','tasks','projects','project_members','task_assignees','task_refs']
+  foreach t in array array['documents','tasks','projects','project_members','task_assignees','task_refs','task_items']
   loop
     if not exists (
       select 1 from pg_publication_tables

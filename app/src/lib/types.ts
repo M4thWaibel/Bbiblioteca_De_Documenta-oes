@@ -39,6 +39,13 @@ export interface TaskRef {
   id: string
 }
 
+export interface TaskItem {
+  id: string
+  text: string
+  done: boolean
+  position: number
+}
+
 export interface Task {
   id: string
   projectId: string | null
@@ -51,6 +58,7 @@ export interface Task {
   createdAt: string
   position: number
   dueDate: string | null
+  items: TaskItem[]
 }
 
 // ===== Formulários =====

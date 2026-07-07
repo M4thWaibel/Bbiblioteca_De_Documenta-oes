@@ -716,6 +716,54 @@ export function useStore(me: string, myEmail: string) {
     [tasks, reload],
   )
 
+  // #5: checklist interno das tarefas
+  const addTaskItem = useCallback(
+    async (taskId: string, text: string) => {
+      if (!text.trim()) return
+      try {
+        await api.addTaskItem(taskId, text, Date.now())
+        await reload()
+      } catch (e) {
+        setError(e instanceof Error ? e.message : String(e))
+      }
+    },
+    [reload],
+  )
+  const toggleTaskItem = useCallback(
+    async (taskId: string, itemId: string, done: boolean) => {
+      setTasks((prev) =>
+        prev.map((t) =>
+          t.id === taskId
+            ? { ...t, items: t.items.map((it) => (it.id === itemId ? { ...it, done } : it)) }
+            : t,
+        ),
+      )
+      try {
+        await api.toggleTaskItem(itemId, done)
+      } catch (e) {
+        setError(e instanceof Error ? e.message : String(e))
+        reload()
+      }
+    },
+    [reload],
+  )
+  const deleteTaskItem = useCallback(
+    async (taskId: string, itemId: string) => {
+      setTasks((prev) =>
+        prev.map((t) =>
+          t.id === taskId ? { ...t, items: t.items.filter((it) => it.id !== itemId) } : t,
+        ),
+      )
+      try {
+        await api.deleteTaskItem(itemId)
+      } catch (e) {
+        setError(e instanceof Error ? e.message : String(e))
+        reload()
+      }
+    },
+    [reload],
+  )
+
   // atalhos de setter de formulário
   const patchForm = useCallback(
     (key: keyof UploadForm) => (v: string) => setForm((s) => ({ ...s, [key]: v })),
@@ -823,6 +871,9 @@ export function useStore(me: string, myEmail: string) {
       saveTask,
       deleteTask,
       moveTask,
+      addTaskItem,
+      toggleTaskItem,
+      deleteTaskItem,
       patchTaskForm,
     }),
     [
@@ -902,6 +953,9 @@ export function useStore(me: string, myEmail: string) {
       saveTask,
       deleteTask,
       moveTask,
+      addTaskItem,
+      toggleTaskItem,
+      deleteTaskItem,
       patchTaskForm,
     ],
   )

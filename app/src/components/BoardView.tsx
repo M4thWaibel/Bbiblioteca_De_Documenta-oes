@@ -590,6 +590,23 @@ function TaskCard({
           {formatDate(task.dueDate)}
         </span>
       )}
+      {task.items.length > 0 && (
+        <span
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '5px',
+            alignSelf: 'flex-start',
+            fontFamily: 'var(--font-secondary)',
+            fontSize: '10.5px',
+            color: 'var(--text-muted)',
+          }}
+          title="Checklist"
+        >
+          <Icon name="checklist" size={13} />
+          {task.items.filter((i) => i.done).length}/{task.items.length}
+        </span>
+      )}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px', marginTop: '2px' }}>
         <div style={{ display: 'flex', alignItems: 'center' }}>
           {task.assignees.slice(0, 4).map((uid, i) => {

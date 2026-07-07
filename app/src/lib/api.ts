@@ -1,5 +1,5 @@
 import { supabase } from './supabase'
-import type { Doc, Profile, Project, Task, TaskForm, UploadForm } from './types'
+import type { Doc, Profile, Project, Task, TaskForm, TaskItem, UploadForm } from './types'
 
 // ============================================================
 // Helpers de mapeamento (linha do banco -> modelo de domínio)
@@ -42,7 +42,7 @@ export interface Snapshot {
 }
 
 export async function fetchSnapshot(): Promise<Snapshot> {
-  const [profilesRes, projectsRes, membersRes, docsRes, tasksRes, assigneesRes, refsRes] =
+  const [profilesRes, projectsRes, membersRes, docsRes, tasksRes, assigneesRes, refsRes, itemsRes] =
     await Promise.all([
       supabase.from('profiles').select('id,name,email,color').order('name'),
       supabase.from('projects').select('*').order('created_at'),
@@ -55,6 +55,7 @@ export async function fetchSnapshot(): Promise<Snapshot> {
       supabase.from('tasks').select('*').order('position', { nullsFirst: false }).order('created_at'),
       supabase.from('task_assignees').select('task_id,user_id'),
       supabase.from('task_refs').select('task_id,doc_id,ref_project_id'),
+      supabase.from('task_items').select('task_id,id,text,done,position').order('position'),
     ])
 
   const firstError =
@@ -64,7 +65,8 @@ export async function fetchSnapshot(): Promise<Snapshot> {
     docsRes.error ||
     tasksRes.error ||
     assigneesRes.error ||
-    refsRes.error
+    refsRes.error ||
+    itemsRes.error
   if (firstError) throw firstError
 
   const membersByProject = new Map<string, string[]>()
@@ -92,6 +94,17 @@ export async function fetchSnapshot(): Promise<Snapshot> {
     else if (r.ref_project_id) arr.push({ type: 'project', id: r.ref_project_id })
     refsByTask.set(r.task_id, arr)
   }
+  const itemsByTask = new Map<string, TaskItem[]>()
+  for (const it of itemsRes.data || []) {
+    const arr = itemsByTask.get(it.task_id) || []
+    arr.push({
+      id: it.id,
+      text: it.text,
+      done: !!it.done,
+      position: typeof it.position === 'number' ? it.position : 0,
+    })
+    itemsByTask.set(it.task_id, arr)
+  }
 
   const tasks: Task[] = (tasksRes.data || []).map((row) => ({
     id: row.id,
@@ -105,6 +118,7 @@ export async function fetchSnapshot(): Promise<Snapshot> {
     createdAt: (row.created_at || '').slice(0, 10),
     position: typeof row.position === 'number' ? row.position : 0,
     dueDate: row.due_date || null,
+    items: itemsByTask.get(row.id) || [],
   }))
 
   return { profiles: profilesRes.data || [], projects, docs, tasks }
@@ -287,7 +301,7 @@ export async function searchDocuments(query: string): Promise<DocSearchHit[]> {
 // REALTIME (Fase 3 · #5) — notifica mudanças nas tabelas do app
 // ============================================================
 export function subscribeToChanges(onChange: () => void): () => void {
-  const tables = ['documents', 'tasks', 'projects', 'project_members', 'task_assignees', 'task_refs']
+  const tables = ['documents', 'tasks', 'projects', 'project_members', 'task_assignees', 'task_refs', 'task_items']
   const channel = supabase.channel('biblioteca-changes')
   for (const table of tables) {
     channel.on('postgres_changes', { event: '*', schema: 'public', table }, () => onChange())
@@ -371,5 +385,23 @@ export async function moveTask(id: string, status: Task['status'], position?: nu
 
 export async function deleteTask(id: string) {
   const { error } = await supabase.from('tasks').delete().eq('id', id)
+  if (error) throw error
+}
+
+// #5: checklist interno das tarefas (task_items)
+export async function addTaskItem(taskId: string, text: string, position: number): Promise<void> {
+  const { error } = await supabase
+    .from('task_items')
+    .insert({ task_id: taskId, text: text.trim(), position })
+  if (error) throw error
+}
+
+export async function toggleTaskItem(id: string, done: boolean): Promise<void> {
+  const { error } = await supabase.from('task_items').update({ done }).eq('id', id)
+  if (error) throw error
+}
+
+export async function deleteTaskItem(id: string): Promise<void> {
+  const { error } = await supabase.from('task_items').delete().eq('id', id)
   if (error) throw error
 }

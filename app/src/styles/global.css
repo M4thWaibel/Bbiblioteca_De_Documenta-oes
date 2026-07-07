@@ -304,6 +304,27 @@ button {
   border-radius: 3px;
   padding: 0 2px;
 }
+.md-body em {
+  font-style: italic;
+}
+.md-body del {
+  opacity: 0.65;
+}
+.md-body img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  border: 1px solid var(--border-light);
+  margin: 8px 0;
+}
+.md-body li.task {
+  list-style: none;
+  margin-left: -1.2em;
+}
+.md-body li.task input {
+  margin-right: 6px;
+  vertical-align: -1px;
+}
 
 /* Inputs herdam a fonte */
 input,

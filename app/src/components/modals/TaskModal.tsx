@@ -18,6 +18,8 @@ import {
 
 const refSelect: CSSProperties = {
   flex: 1,
+  minWidth: 0,
+  maxWidth: '100%',
   height: '40px',
   padding: '0 10px',
   borderRadius: '8px',
@@ -92,7 +94,7 @@ export function TaskModal({ store }: { store: Store }) {
       </div>
 
       <div style={{ display: 'flex', gap: '12px', marginBottom: '14px' }}>
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '6px' }}>
+        <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: '6px' }}>
           <label style={modalLabel}>Coluna</label>
           <select
             value={f.status}
@@ -106,7 +108,7 @@ export function TaskModal({ store }: { store: Store }) {
             ))}
           </select>
         </div>
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '6px' }}>
+        <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: '6px' }}>
           <label style={modalLabel}>Prioridade</label>
           <select
             value={f.priority}
@@ -264,6 +266,8 @@ export function TaskModal({ store }: { store: Store }) {
               <span
                 style={{
                   flex: 1,
+                  minWidth: 0,
+                  overflowWrap: 'anywhere',
                   fontFamily: 'var(--font-secondary)',
                   fontSize: '12.5px',
                   color: it.done ? 'var(--text-muted)' : 'var(--text)',

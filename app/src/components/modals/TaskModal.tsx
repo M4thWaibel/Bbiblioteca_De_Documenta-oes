@@ -1,4 +1,4 @@
-import type { CSSProperties } from 'react'
+import { useState, type CSSProperties } from 'react'
 import type { Store } from '../../store/useStore'
 import type { Priority, TaskStatus } from '../../lib/types'
 import { Icon } from '../ui/Icon'
@@ -34,6 +34,10 @@ export function TaskModal({ store }: { store: Store }) {
   const f = store.taskForm
   const isEditing = !!store.editingTaskId
   const disabled = !f.title.trim()
+  const [newItem, setNewItem] = useState('')
+  const editingId = store.editingTaskId
+  const liveTask = editingId ? store.tasks.find((t) => t.id === editingId) : null
+  const items = liveTask?.items || []
 
   const projLabel = (p: import('../../lib/types').Project) =>
     p.parentId ? `${store.project(p.parentId)?.name || ''} › ${p.name}` : p.name
@@ -225,6 +229,91 @@ export function TaskModal({ store }: { store: Store }) {
           </select>
         </div>
       </div>
+
+      {isEditing && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '16px' }}>
+          <label style={modalLabel}>
+            Checklist
+            {items.length > 0 ? ` · ${items.filter((i) => i.done).length}/${items.length}` : ''}
+          </label>
+          {items.map((it) => (
+            <div key={it.id} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <input
+                type="checkbox"
+                checked={it.done}
+                onChange={(e) => store.toggleTaskItem(editingId!, it.id, e.target.checked)}
+                style={{ cursor: 'pointer', flex: 'none' }}
+              />
+              <span
+                style={{
+                  flex: 1,
+                  fontFamily: 'var(--font-secondary)',
+                  fontSize: '12.5px',
+                  color: it.done ? 'var(--text-muted)' : 'var(--text)',
+                  textDecoration: it.done ? 'line-through' : 'none',
+                }}
+              >
+                {it.text}
+              </span>
+              <button
+                onClick={() => store.deleteTaskItem(editingId!, it.id)}
+                title="Remover"
+                aria-label="Remover item"
+                type="button"
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  color: 'var(--text-muted)',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  padding: '2px',
+                }}
+              >
+                <Icon name="close" size={15} />
+              </button>
+            </div>
+          ))}
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <input
+              value={newItem}
+              onChange={(e) => setNewItem(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault()
+                  store.addTaskItem(editingId!, newItem)
+                  setNewItem('')
+                }
+              }}
+              placeholder="Adicionar item…"
+              style={{ ...modalInput, flex: 1, height: '38px' }}
+            />
+            <Hoverable
+              as="button"
+              onClick={() => {
+                store.addTaskItem(editingId!, newItem)
+                setNewItem('')
+              }}
+              hoverStyle={newItem.trim() ? uploadBtnHover : undefined}
+              style={{
+                width: '38px',
+                height: '38px',
+                borderRadius: '8px',
+                border: 'none',
+                background: 'var(--gradient-primary)',
+                color: '#fff',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flex: 'none',
+              }}
+            >
+              <Icon name="add" size={18} />
+            </Hoverable>
+          </div>
+        </div>
+      )}
 
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px' }}>
         {isEditing && (

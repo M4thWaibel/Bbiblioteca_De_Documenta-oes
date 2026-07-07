@@ -3,7 +3,7 @@ import type { Store } from '../../store/useStore'
 import { Icon } from '../ui/Icon'
 import { Hoverable } from '../ui/Hoverable'
 import { primaryBtnStyle, uploadBtnHover } from '../ui/styles'
-import { cats } from '../../lib/constants'
+import { DEFAULT_CATEGORIES } from '../../lib/constants'
 import { mdToHtml } from '../../lib/markdown'
 
 const EDITOR_MODE_KEY = 'biblioteca_editor_mode'
@@ -28,6 +28,7 @@ export function UploadModal({ store }: { store: Store }) {
   const isEditing = !!store.editingDocId
   const curProj = store.project(store.currentProjectId)
   const subsList = store.currentProjectId ? store.subprojects(store.currentProjectId) : []
+  const cats = store.categories.length ? store.categories : DEFAULT_CATEGORIES
   const hasFile = !!f.content
   const disabled = !(f.title.trim() && f.content.trim())
   // #2: pré-visualização ao vivo do Markdown (memoizada por conteúdo).

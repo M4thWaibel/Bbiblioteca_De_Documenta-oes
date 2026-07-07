@@ -4,27 +4,28 @@ export interface Category {
   id: string
   label: string
   icon: string
-  color: keyof typeof catColors
+  color: string // hex — cor própria (Update 2.0 · #6b)
+  position: number
 }
 
-export const cats: Category[] = [
-  { id: 'dados', label: 'Dados', icon: 'dataset', color: 'blue' },
-  { id: 'rmr', label: 'Reuniões (RMR)', icon: 'event_note', color: 'gold' },
-  { id: 'selo', label: 'Selo EAP', icon: 'verified', color: 'green' },
-  { id: 'powerbi', label: 'Power BI', icon: 'insert_chart', color: 'purple' },
-  { id: 'pesquisas', label: 'Pesquisas', icon: 'poll', color: 'teal' },
-  { id: 'indicadores', label: 'Indicadores', icon: 'trending_up', color: 'green' },
-  { id: 'organograma', label: 'Organograma', icon: 'account_tree', color: 'blue' },
-  { id: 'geral', label: 'Geral', icon: 'description', color: 'gold' },
+// Categorias padrão — usadas como seed do banco e como fallback caso a tabela
+// ainda não tenha carregado. As categorias reais vêm de store.categories.
+export const DEFAULT_CATEGORIES: Category[] = [
+  { id: 'dados', label: 'Dados', icon: 'dataset', color: '#64B5F6', position: 1000 },
+  { id: 'rmr', label: 'Reuniões (RMR)', icon: 'event_note', color: '#FF7A7E', position: 2000 },
+  { id: 'selo', label: 'Selo EAP', icon: 'verified', color: '#81C784', position: 3000 },
+  { id: 'powerbi', label: 'Power BI', icon: 'insert_chart', color: '#A78BFA', position: 4000 },
+  { id: 'pesquisas', label: 'Pesquisas', icon: 'poll', color: '#4DD0E1', position: 5000 },
+  { id: 'indicadores', label: 'Indicadores', icon: 'trending_up', color: '#81C784', position: 6000 },
+  { id: 'organograma', label: 'Organograma', icon: 'account_tree', color: '#64B5F6', position: 7000 },
+  { id: 'geral', label: 'Geral', icon: 'description', color: '#FF7A7E', position: 8000 },
 ]
 
-export const catColors = {
-  gold: { bg: 'rgba(var(--primary-rgb),0.14)', fg: '#FF7A7E' },
-  blue: { bg: 'rgba(33,150,243,0.12)', fg: '#64B5F6' },
-  green: { bg: 'rgba(76,175,80,0.12)', fg: '#81C784' },
-  purple: { bg: 'rgba(124,58,237,0.14)', fg: '#A78BFA' },
-  teal: { bg: 'rgba(23,162,184,0.14)', fg: '#4DD0E1' },
-} as const
+// Deriva as cores do chip a partir de um hex (fg = hex, bg = hex com alpha baixo).
+export function catChip(hex: string): { bg: string; fg: string } {
+  const h = /^#[0-9a-fA-F]{6}$/.test(hex) ? hex : '#a0a0a0'
+  return { bg: h + '22', fg: h }
+}
 
 export const projColors = ['#E5484D', '#2A6FDB', '#1F8A5B', '#7C3AED', '#E6A800', '#17A2B8']
 
@@ -53,6 +54,11 @@ export const priorityOptions: { id: Priority; label: string }[] = [
   { id: 'high', label: 'Alta' },
 ]
 
-export function cat(id: string): Category {
-  return cats.find((c) => c.id === id) || cats[cats.length - 1]
+// Resolve uma categoria por id numa lista (fallback para 'geral' ou último).
+export function catFrom(id: string, list: Category[]): Category {
+  return (
+    list.find((c) => c.id === id) ||
+    list.find((c) => c.id === 'geral') ||
+    DEFAULT_CATEGORIES[DEFAULT_CATEGORIES.length - 1]
+  )
 }

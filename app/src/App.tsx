@@ -11,6 +11,7 @@ import { ProjectModal } from './components/modals/ProjectModal'
 import { UploadModal } from './components/modals/UploadModal'
 import { MembersModal } from './components/modals/MembersModal'
 import { TaskModal } from './components/modals/TaskModal'
+import { CategoriesModal } from './components/modals/CategoriesModal'
 import { Icon } from './components/ui/Icon'
 import { accentVars, ACCENT_KEY } from './lib/accents'
 
@@ -123,6 +124,7 @@ function AuthedApp({
       {store.projModalOpen && <ProjectModal store={store} />}
       {store.membersModalOpen && <MembersModal store={store} />}
       {store.taskModalOpen && <TaskModal store={store} />}
+      {store.categoriesModalOpen && <CategoriesModal store={store} />}
 
       {/* banner de erro */}
       {store.error && (

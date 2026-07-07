@@ -1,15 +1,17 @@
-import type { CSSProperties } from 'react'
+import { useState, type CSSProperties } from 'react'
 import type { Store } from '../store/useStore'
-import type { Task } from '../lib/types'
+import type { Priority, Task } from '../lib/types'
 import { Icon } from './ui/Icon'
 import { Hoverable } from './ui/Hoverable'
 import { badgeStyle, chipStyle, ghostHover } from './ui/styles'
-import { columnsMeta, priorityMeta } from '../lib/constants'
-import { avatarStyle, initials } from '../lib/format'
+import { columnsMeta, priorityMeta, priorityOptions } from '../lib/constants'
+import { avatarStyle, formatDate, initials, todayISO } from '../lib/format'
 
 export function BoardView({ store }: { store: Store }) {
   const allTasks = store.tasks
   const docsAll = store.docs
+  const [priFilter, setPriFilter] = useState<Priority | 'all'>('all')
+  const [assigneeFilter, setAssigneeFilter] = useState<string>('all')
 
   const taskTops = (t: Task): Record<string, boolean> => {
     const set: Record<string, boolean> = {}
@@ -24,9 +26,11 @@ export function BoardView({ store }: { store: Store }) {
     return set
   }
 
-  const boardTasks = store.boardProjFilter
+  let boardTasks = store.boardProjFilter
     ? allTasks.filter((t) => taskTops(t)[store.boardProjFilter!])
     : allTasks
+  if (priFilter !== 'all') boardTasks = boardTasks.filter((t) => t.priority === priFilter)
+  if (assigneeFilter !== 'all') boardTasks = boardTasks.filter((t) => t.assignees.includes(assigneeFilter))
 
   const subtitle =
     boardTasks.length +
@@ -79,6 +83,48 @@ export function BoardView({ store }: { store: Store }) {
             )
           })}
         </div>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', alignItems: 'center' }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', alignItems: 'center' }}>
+            {([{ id: 'all', label: 'Todas' }] as { id: Priority | 'all'; label: string }[])
+              .concat(priorityOptions.map((o) => ({ id: o.id, label: o.label })))
+              .map((o) => {
+                const active = priFilter === o.id
+                return (
+                  <Hoverable
+                    key={o.id}
+                    as="button"
+                    onClick={() => setPriFilter(o.id)}
+                    hoverStyle={active ? {} : { borderColor: 'rgba(229,72,77,0.4)', color: 'var(--text)' }}
+                    style={chipStyle(active)}
+                  >
+                    {o.label}
+                  </Hoverable>
+                )
+              })}
+          </div>
+          <select
+            value={assigneeFilter}
+            onChange={(e) => setAssigneeFilter(e.target.value)}
+            style={{
+              height: '30px',
+              padding: '0 10px',
+              borderRadius: '8px',
+              background: 'var(--surface)',
+              border: '1px solid var(--border-light)',
+              color: 'var(--text-secondary)',
+              fontFamily: 'var(--font-secondary)',
+              fontSize: '12px',
+              cursor: 'pointer',
+            }}
+          >
+            <option value="all">Todos os responsáveis</option>
+            {store.profiles.map((u) => (
+              <option key={u.id} value={u.id}>
+                {u.name}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
       <div
@@ -93,15 +139,21 @@ export function BoardView({ store }: { store: Store }) {
         }}
       >
         {columnsMeta.map((cm) => {
-          const colTasks = boardTasks.filter((t) => t.status === cm.status)
+          const colTasks = boardTasks
+            .filter((t) => t.status === cm.status)
+            .sort((a, b) => a.position - b.position)
           return (
             <div
               key={cm.status}
               onDragOver={(e) => e.preventDefault()}
               onDrop={(e) => {
                 e.preventDefault()
-                store.moveTask(store.dragIdRef.current, cm.status)
+                const dragId = store.dragIdRef.current
                 store.dragIdRef.current = null
+                if (dragId) {
+                  const last = colTasks[colTasks.length - 1]
+                  store.moveTask(dragId, cm.status, last ? last.position + 1000 : Date.now())
+                }
               }}
               style={{
                 display: 'flex',
@@ -162,8 +214,22 @@ export function BoardView({ store }: { store: Store }) {
               </div>
 
               <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '9px', padding: '2px' }}>
-                {colTasks.map((t) => (
-                  <TaskCard key={t.id} store={store} task={t} />
+                {colTasks.map((t, i) => (
+                  <TaskCard
+                    key={t.id}
+                    store={store}
+                    task={t}
+                    onReorder={(e) => {
+                      e.preventDefault()
+                      e.stopPropagation()
+                      const dragId = store.dragIdRef.current
+                      store.dragIdRef.current = null
+                      if (!dragId || dragId === t.id) return
+                      const prev = colTasks[i - 1]
+                      const prevPos = prev ? prev.position : t.position - 2000
+                      store.moveTask(dragId, cm.status, (prevPos + t.position) / 2)
+                    }}
+                  />
                 ))}
                 {colTasks.length === 0 && (
                   <Hoverable
@@ -198,9 +264,18 @@ export function BoardView({ store }: { store: Store }) {
   )
 }
 
-function TaskCard({ store, task }: { store: Store; task: Task }) {
+function TaskCard({
+  store,
+  task,
+  onReorder,
+}: {
+  store: Store
+  task: Task
+  onReorder: (e: React.DragEvent) => void
+}) {
   const pri = priorityMeta[task.priority] || priorityMeta.med
   const docsAll = store.docs
+  const overdue = !!task.dueDate && task.status !== 'done' && task.dueDate < todayISO()
 
   const refChips = task.refs.map((r, idx) => {
     if (r.type === 'doc') {
@@ -265,6 +340,8 @@ function TaskCard({ store, task }: { store: Store; task: Task }) {
         store.dragIdRef.current = task.id
         if (e.dataTransfer) e.dataTransfer.effectAllowed = 'move'
       }}
+      onDragOver={(e: React.DragEvent) => e.preventDefault()}
+      onDrop={onReorder}
       onClick={() => store.openTask(task.id)}
       hoverStyle={{ borderColor: 'rgba(229,72,77,0.45)', boxShadow: 'var(--elevation-2)' }}
       style={{
@@ -325,6 +402,27 @@ function TaskCard({ store, task }: { store: Store; task: Task }) {
             </span>
           ))}
         </div>
+      )}
+      {task.dueDate && (
+        <span
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '5px',
+            alignSelf: 'flex-start',
+            padding: '2px 8px',
+            borderRadius: '6px',
+            fontFamily: 'var(--font-secondary)',
+            fontSize: '10.5px',
+            background: overdue ? 'rgba(220,53,69,0.14)' : 'var(--surface-light)',
+            border: '1px solid ' + (overdue ? 'rgba(220,53,69,0.4)' : 'var(--border-light)'),
+            color: overdue ? '#F87171' : 'var(--text-secondary)',
+          }}
+          title={overdue ? 'Prazo vencido' : 'Prazo'}
+        >
+          <Icon name="event" size={12} />
+          {formatDate(task.dueDate)}
+        </span>
       )}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px', marginTop: '2px' }}>
         <div style={{ display: 'flex', alignItems: 'center' }}>

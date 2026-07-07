@@ -154,10 +154,13 @@ create table if not exists public.tasks (
   status      text not null default 'todo' check (status in ('todo','doing','review','done')),
   priority    text not null default 'med'  check (priority in ('low','med','high')),
   created_by  uuid references public.profiles(id) on delete set null default auth.uid(),
-  created_at  timestamptz not null default now()
+  created_at  timestamptz not null default now(),
+  position    double precision,
+  due_date    date
 );
 create index if not exists tasks_project_idx on public.tasks(project_id);
 create index if not exists tasks_creator_idx on public.tasks(created_by);
+create index if not exists tasks_position_idx on public.tasks(status, position);
 
 create table if not exists public.task_assignees (
   task_id uuid not null references public.tasks(id) on delete cascade,

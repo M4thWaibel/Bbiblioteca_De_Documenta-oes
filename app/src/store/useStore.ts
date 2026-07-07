@@ -34,6 +34,7 @@ const emptyTaskForm = (status: TaskStatus, me: string): TaskForm => ({
   priority: 'med',
   assignees: [me],
   refs: [],
+  dueDate: '',
 })
 
 export function useStore(me: string, myEmail: string) {
@@ -606,6 +607,7 @@ export function useStore(me: string, myEmail: string) {
         priority: t.priority || 'med',
         assignees: [...t.assignees],
         refs: [...t.refs],
+        dueDate: t.dueDate || '',
       })
       setTaskModalOpen(true)
     },
@@ -662,13 +664,18 @@ export function useStore(me: string, myEmail: string) {
   }, [editingTaskId, reload])
 
   const moveTask = useCallback(
-    async (id: string | null, status: TaskStatus) => {
+    async (id: string | null, status: TaskStatus, position?: number) => {
       if (!id) return
       const cur = tasks.find((t) => t.id === id)
-      if (!cur || cur.status === status) return
-      setTasks((prev) => prev.map((t) => (t.id === id ? { ...t, status } : t)))
+      if (!cur) return
+      if (cur.status === status && position === undefined) return
+      setTasks((prev) =>
+        prev.map((t) =>
+          t.id === id ? { ...t, status, ...(position !== undefined ? { position } : {}) } : t,
+        ),
+      )
       try {
-        await api.moveTask(id, status)
+        await api.moveTask(id, status, position)
       } catch (e) {
         setError(e instanceof Error ? e.message : String(e))
         reload()

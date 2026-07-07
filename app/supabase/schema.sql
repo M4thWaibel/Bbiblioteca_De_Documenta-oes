@@ -308,3 +308,21 @@ create policy "assignees_delete" on public.task_assignees for delete to authenti
 create policy "refs_select" on public.task_refs for select to authenticated using (private.can_access_task(task_id));
 create policy "refs_insert" on public.task_refs for insert to authenticated with check (private.can_access_task(task_id));
 create policy "refs_delete" on public.task_refs for delete to authenticated using (private.can_access_task(task_id));
+
+-- ------------------------------------------------------------
+-- REALTIME (Fase 3 · #5) — publica mudanças das tabelas do app.
+-- O Realtime aplica o RLS por usuário nos eventos entregues.
+-- ------------------------------------------------------------
+do $$
+declare t text;
+begin
+  foreach t in array array['documents','tasks','projects','project_members','task_assignees','task_refs']
+  loop
+    if not exists (
+      select 1 from pg_publication_tables
+      where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = t
+    ) then
+      execute format('alter publication supabase_realtime add table public.%I', t);
+    end if;
+  end loop;
+end $$;

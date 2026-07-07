@@ -267,6 +267,21 @@ export async function searchDocuments(query: string): Promise<DocSearchHit[]> {
 }
 
 // ============================================================
+// REALTIME (Fase 3 · #5) — notifica mudanças nas tabelas do app
+// ============================================================
+export function subscribeToChanges(onChange: () => void): () => void {
+  const tables = ['documents', 'tasks', 'projects', 'project_members', 'task_assignees', 'task_refs']
+  const channel = supabase.channel('biblioteca-changes')
+  for (const table of tables) {
+    channel.on('postgres_changes', { event: '*', schema: 'public', table }, () => onChange())
+  }
+  channel.subscribe()
+  return () => {
+    supabase.removeChannel(channel)
+  }
+}
+
+// ============================================================
 // TAREFAS
 // ============================================================
 async function writeAssignees(taskId: string, assignees: string[]) {

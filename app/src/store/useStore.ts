@@ -156,6 +156,21 @@ export function useStore(me: string, myEmail: string) {
     }
   }, [query])
 
+  // #5: realtime — recarrega (com debounce) quando algo muda no banco.
+  useEffect(() => {
+    if (dataLoading) return
+    let timer: ReturnType<typeof setTimeout> | null = null
+    const bump = () => {
+      if (timer) clearTimeout(timer)
+      timer = setTimeout(() => reload(), 400)
+    }
+    const unsubscribe = api.subscribeToChanges(bump)
+    return () => {
+      if (timer) clearTimeout(timer)
+      unsubscribe()
+    }
+  }, [dataLoading, reload])
+
   // #6: aplica a rota da URL no estado (carga inicial + voltar/avançar do navegador).
   useEffect(() => {
     if (dataLoading) return
@@ -688,6 +703,7 @@ export function useStore(me: string, myEmail: string) {
       dataLoading,
       error,
       setError,
+      refresh: reload,
       // helpers
       user,
       project,
@@ -776,6 +792,7 @@ export function useStore(me: string, myEmail: string) {
       tasks,
       dataLoading,
       error,
+      reload,
       user,
       project,
       subprojects,

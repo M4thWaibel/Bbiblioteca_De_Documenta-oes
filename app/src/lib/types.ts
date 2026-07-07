@@ -49,6 +49,8 @@ export interface Task {
   assignees: string[]
   refs: TaskRef[]
   createdAt: string
+  position: number
+  dueDate: string | null
 }
 
 // ===== Formulários =====
@@ -77,4 +79,5 @@ export interface TaskForm {
   priority: Priority
   assignees: string[]
   refs: TaskRef[]
+  dueDate: string
 }

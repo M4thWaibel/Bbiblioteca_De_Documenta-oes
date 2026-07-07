@@ -52,7 +52,7 @@ export async function fetchSnapshot(): Promise<Snapshot> {
       supabase
         .from('documents')
         .select('id,project_id,title,description,category,tags,pinned,updated_at'),
-      supabase.from('tasks').select('*').order('created_at'),
+      supabase.from('tasks').select('*').order('position', { nullsFirst: false }).order('created_at'),
       supabase.from('task_assignees').select('task_id,user_id'),
       supabase.from('task_refs').select('task_id,doc_id,ref_project_id'),
     ])
@@ -103,6 +103,8 @@ export async function fetchSnapshot(): Promise<Snapshot> {
     assignees: assigneesByTask.get(row.id) || [],
     refs: refsByTask.get(row.id) || [],
     createdAt: (row.created_at || '').slice(0, 10),
+    position: typeof row.position === 'number' ? row.position : 0,
+    dueDate: row.due_date || null,
   }))
 
   return { profiles: profilesRes.data || [], projects, docs, tasks }
@@ -267,6 +269,21 @@ export async function searchDocuments(query: string): Promise<DocSearchHit[]> {
 }
 
 // ============================================================
+// REALTIME (Fase 3 · #5) — notifica mudanças nas tabelas do app
+// ============================================================
+export function subscribeToChanges(onChange: () => void): () => void {
+  const tables = ['documents', 'tasks', 'projects', 'project_members', 'task_assignees', 'task_refs']
+  const channel = supabase.channel('biblioteca-changes')
+  for (const table of tables) {
+    channel.on('postgres_changes', { event: '*', schema: 'public', table }, () => onChange())
+  }
+  channel.subscribe()
+  return () => {
+    supabase.removeChannel(channel)
+  }
+}
+
+// ============================================================
 // TAREFAS
 // ============================================================
 async function writeAssignees(taskId: string, assignees: string[]) {
@@ -302,6 +319,8 @@ export async function createTask(form: TaskForm, createdBy: string): Promise<str
       status: form.status,
       priority: form.priority,
       created_by: createdBy,
+      position: Date.now(),
+      due_date: form.dueDate || null,
     })
     .select('id')
     .single()
@@ -320,6 +339,7 @@ export async function updateTask(id: string, form: TaskForm) {
       description: form.description.trim(),
       status: form.status,
       priority: form.priority,
+      due_date: form.dueDate || null,
     })
     .eq('id', id)
   if (error) throw error
@@ -327,8 +347,10 @@ export async function updateTask(id: string, form: TaskForm) {
   await writeRefs(id, form.refs)
 }
 
-export async function moveTask(id: string, status: Task['status']) {
-  const { error } = await supabase.from('tasks').update({ status }).eq('id', id)
+export async function moveTask(id: string, status: Task['status'], position?: number) {
+  const patch: { status: Task['status']; position?: number } = { status }
+  if (position !== undefined) patch.position = position
+  const { error } = await supabase.from('tasks').update(patch).eq('id', id)
   if (error) throw error
 }
 

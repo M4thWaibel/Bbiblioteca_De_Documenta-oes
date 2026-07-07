@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import * as api from '../lib/api'
 import type { DocSearchHit } from '../lib/api'
+import { parseHash, buildHash } from '../lib/router'
 import type {
   Doc,
   Priority,
@@ -33,6 +34,7 @@ const emptyTaskForm = (status: TaskStatus, me: string): TaskForm => ({
   priority: 'med',
   assignees: [me],
   refs: [],
+  dueDate: '',
 })
 
 export function useStore(me: string, myEmail: string) {
@@ -56,6 +58,7 @@ export function useStore(me: string, myEmail: string) {
   const [copiedId, setCopiedId] = useState<string | null>(null)
   const [searchHits, setSearchHits] = useState<DocSearchHit[]>([])
   const [searchLoading, setSearchLoading] = useState(false)
+  const [routeInit, setRouteInit] = useState(false)
 
   // ---- modais / formulários ----
   const [uploadOpen, setUploadOpen] = useState(false)
@@ -75,6 +78,8 @@ export function useStore(me: string, myEmail: string) {
 
   const scrollElRef = useRef<HTMLDivElement | null>(null)
   const dragIdRef = useRef<string | null>(null)
+  const navRef = useRef({ projects, docs })
+  navRef.current = { projects, docs }
 
   // ---- carregar dados ----
   const reload = useCallback(async () => {
@@ -151,6 +156,74 @@ export function useStore(me: string, myEmail: string) {
       clearTimeout(t)
     }
   }, [query])
+
+  // #5: realtime — recarrega (com debounce) quando algo muda no banco.
+  useEffect(() => {
+    if (dataLoading) return
+    let timer: ReturnType<typeof setTimeout> | null = null
+    const bump = () => {
+      if (timer) clearTimeout(timer)
+      timer = setTimeout(() => reload(), 400)
+    }
+    const unsubscribe = api.subscribeToChanges(bump)
+    return () => {
+      if (timer) clearTimeout(timer)
+      unsubscribe()
+    }
+  }, [dataLoading, reload])
+
+  // #6: aplica a rota da URL no estado (carga inicial + voltar/avançar do navegador).
+  useEffect(() => {
+    if (dataLoading) return
+    const apply = () => {
+      const r = parseHash(window.location.hash)
+      const { projects: ps, docs: ds } = navRef.current
+      if (r.view === 'board') {
+        setView('board')
+      } else if (r.view === 'library') {
+        const target = ps.find((x) => x.id === r.projectId)
+        if (!target) {
+          setView('projects')
+          setCurrentProjectId(null)
+          setCurrentSubId(null)
+          setActiveId(null)
+          return
+        }
+        const topId = target.parentId || target.id
+        const subId = r.subId || (target.parentId ? target.id : null)
+        const docId = r.docId && ds.some((d) => d.id === r.docId) ? r.docId : null
+        setView('library')
+        setCurrentProjectId(topId)
+        setCurrentSubId(subId)
+        setActiveId(docId)
+      } else {
+        setView('projects')
+        setCurrentProjectId(null)
+        setCurrentSubId(null)
+        setActiveId(null)
+      }
+    }
+    apply()
+    setRouteInit(true)
+    window.addEventListener('hashchange', apply)
+    return () => window.removeEventListener('hashchange', apply)
+  }, [dataLoading])
+
+  // #6: escreve a URL a partir do estado de navegação (após a rota inicial ser aplicada).
+  useEffect(() => {
+    if (dataLoading || !routeInit) return
+    let desired: string
+    if (view === 'board') desired = buildHash({ view: 'board' })
+    else if (view === 'library' && currentProjectId)
+      desired = buildHash({
+        view: 'library',
+        projectId: currentProjectId,
+        subId: currentSubId,
+        docId: activeId,
+      })
+    else desired = buildHash({ view: 'projects' })
+    if (window.location.hash !== desired) window.location.hash = desired
+  }, [dataLoading, routeInit, view, currentProjectId, currentSubId, activeId])
 
   // ============================================================
   // Helpers de leitura
@@ -534,6 +607,7 @@ export function useStore(me: string, myEmail: string) {
         priority: t.priority || 'med',
         assignees: [...t.assignees],
         refs: [...t.refs],
+        dueDate: t.dueDate || '',
       })
       setTaskModalOpen(true)
     },
@@ -590,13 +664,18 @@ export function useStore(me: string, myEmail: string) {
   }, [editingTaskId, reload])
 
   const moveTask = useCallback(
-    async (id: string | null, status: TaskStatus) => {
+    async (id: string | null, status: TaskStatus, position?: number) => {
       if (!id) return
       const cur = tasks.find((t) => t.id === id)
-      if (!cur || cur.status === status) return
-      setTasks((prev) => prev.map((t) => (t.id === id ? { ...t, status } : t)))
+      if (!cur) return
+      if (cur.status === status && position === undefined) return
+      setTasks((prev) =>
+        prev.map((t) =>
+          t.id === id ? { ...t, status, ...(position !== undefined ? { position } : {}) } : t,
+        ),
+      )
       try {
-        await api.moveTask(id, status)
+        await api.moveTask(id, status, position)
       } catch (e) {
         setError(e instanceof Error ? e.message : String(e))
         reload()
@@ -631,6 +710,7 @@ export function useStore(me: string, myEmail: string) {
       dataLoading,
       error,
       setError,
+      refresh: reload,
       // helpers
       user,
       project,
@@ -719,6 +799,7 @@ export function useStore(me: string, myEmail: string) {
       tasks,
       dataLoading,
       error,
+      reload,
       user,
       project,
       subprojects,

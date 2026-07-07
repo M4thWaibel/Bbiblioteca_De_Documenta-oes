@@ -254,6 +254,16 @@ export function Header({
 
         <Hoverable
           as="button"
+          onClick={store.refresh}
+          title="Atualizar"
+          hoverStyle={ghostHover}
+          style={ghostBtn}
+        >
+          <Icon name="refresh" size={19} />
+        </Hoverable>
+
+        <Hoverable
+          as="button"
           onClick={onToggleTheme}
           title={theme === 'dark' ? 'Tema claro' : 'Tema escuro'}
           hoverStyle={ghostHover}

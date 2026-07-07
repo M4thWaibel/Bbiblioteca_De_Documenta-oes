@@ -154,10 +154,13 @@ create table if not exists public.tasks (
   status      text not null default 'todo' check (status in ('todo','doing','review','done')),
   priority    text not null default 'med'  check (priority in ('low','med','high')),
   created_by  uuid references public.profiles(id) on delete set null default auth.uid(),
-  created_at  timestamptz not null default now()
+  created_at  timestamptz not null default now(),
+  position    double precision,
+  due_date    date
 );
 create index if not exists tasks_project_idx on public.tasks(project_id);
 create index if not exists tasks_creator_idx on public.tasks(created_by);
+create index if not exists tasks_position_idx on public.tasks(status, position);
 
 create table if not exists public.task_assignees (
   task_id uuid not null references public.tasks(id) on delete cascade,
@@ -308,3 +311,21 @@ create policy "assignees_delete" on public.task_assignees for delete to authenti
 create policy "refs_select" on public.task_refs for select to authenticated using (private.can_access_task(task_id));
 create policy "refs_insert" on public.task_refs for insert to authenticated with check (private.can_access_task(task_id));
 create policy "refs_delete" on public.task_refs for delete to authenticated using (private.can_access_task(task_id));
+
+-- ------------------------------------------------------------
+-- REALTIME (Fase 3 · #5) — publica mudanças das tabelas do app.
+-- O Realtime aplica o RLS por usuário nos eventos entregues.
+-- ------------------------------------------------------------
+do $$
+declare t text;
+begin
+  foreach t in array array['documents','tasks','projects','project_members','task_assignees','task_refs']
+  loop
+    if not exists (
+      select 1 from pg_publication_tables
+      where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = t
+    ) then
+      execute format('alter publication supabase_realtime add table public.%I', t);
+    end if;
+  end loop;
+end $$;

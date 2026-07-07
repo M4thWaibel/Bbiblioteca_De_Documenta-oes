@@ -117,6 +117,16 @@ export function TaskModal({ store }: { store: Store }) {
         </div>
       </div>
 
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '14px' }}>
+        <label style={modalLabel}>Prazo (opcional)</label>
+        <input
+          type="date"
+          value={f.dueDate}
+          onChange={(e) => store.patchTaskForm('dueDate')(e.target.value)}
+          style={{ ...modalInput, cursor: 'pointer' }}
+        />
+      </div>
+
       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '14px' }}>
         <label style={modalLabel}>Responsáveis</label>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '7px' }}>

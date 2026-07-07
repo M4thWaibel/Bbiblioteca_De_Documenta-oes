@@ -76,6 +76,76 @@ create trigger documents_set_updated_at
   before insert or update on public.documents
   for each row execute function public.set_document_updated_at();
 
+-- ------------------------------------------------------------
+-- BUSCA FULL-TEXT (Fase 2 · #4/#10) — configuração 'portuguese'
+-- ------------------------------------------------------------
+-- Coluna tsvector mantida por trigger. (Coluna GERADA foi rejeitada: a
+-- resolução do regconfig em to_tsvector não é considerada "immutable".)
+alter table public.documents add column if not exists content_tsv tsvector;
+
+create or replace function public.documents_tsv_refresh()
+returns trigger language plpgsql set search_path = public as $$
+begin
+  new.content_tsv := to_tsvector(
+    'portuguese',
+    coalesce(new.title, '') || ' ' ||
+    coalesce(new.description, '') || ' ' ||
+    coalesce(array_to_string(new.tags, ' '), '') || ' ' ||
+    coalesce(new.content, '')
+  );
+  return new;
+end;
+$$;
+
+drop trigger if exists documents_tsv_refresh on public.documents;
+create trigger documents_tsv_refresh
+  before insert or update on public.documents
+  for each row execute function public.documents_tsv_refresh();
+
+-- Backfill dos documentos existentes (no-op num banco recém-criado).
+update public.documents set content_tsv = to_tsvector(
+  'portuguese',
+  coalesce(title, '') || ' ' ||
+  coalesce(description, '') || ' ' ||
+  coalesce(array_to_string(tags, ' '), '') || ' ' ||
+  coalesce(content, '')
+);
+
+create index if not exists documents_content_tsv_idx
+  on public.documents using gin (content_tsv);
+
+-- RPC de busca: SECURITY INVOKER (RLS do usuário se aplica), devolve trecho
+-- destacado (marcadores « » convertidos em <mark> com escape no cliente) e rank.
+create or replace function public.search_documents(q text)
+returns table (
+  id uuid,
+  project_id uuid,
+  title text,
+  description text,
+  category text,
+  tags text[],
+  pinned boolean,
+  updated_at date,
+  headline text,
+  rank real
+)
+language sql stable security invoker set search_path = public as $$
+  select
+    d.id, d.project_id, d.title, d.description, d.category, d.tags, d.pinned, d.updated_at,
+    ts_headline(
+      'portuguese', coalesce(d.content, ''),
+      websearch_to_tsquery('portuguese', q),
+      'StartSel=«,StopSel=»,MaxFragments=2,MinWords=6,MaxWords=22,ShortWord=2'
+    ) as headline,
+    ts_rank(d.content_tsv, websearch_to_tsquery('portuguese', q)) as rank
+  from public.documents d
+  where length(btrim(coalesce(q, ''))) > 0
+    and d.content_tsv @@ websearch_to_tsquery('portuguese', q)
+  order by rank desc, d.updated_at desc
+  limit 50;
+$$;
+grant execute on function public.search_documents(text) to authenticated;
+
 create table if not exists public.tasks (
   id          uuid primary key default gen_random_uuid(),
   project_id  uuid references public.projects(id) on delete set null,

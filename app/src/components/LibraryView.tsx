@@ -1,10 +1,10 @@
-import { type CSSProperties } from 'react'
+import { useMemo, type CSSProperties } from 'react'
 import type { Store } from '../store/useStore'
 import { Icon } from './ui/Icon'
 import { Hoverable } from './ui/Hoverable'
 import { badgeStyle, chipStyle, dangerHover, ghostHover, subChipStyle } from './ui/styles'
 import { cat as getCat, catColors, cats } from '../lib/constants'
-import { formatDate, matches, readingTime } from '../lib/format'
+import { formatDate, readingTime } from '../lib/format'
 import { mdToHtml } from '../lib/markdown'
 import { MarkdownArticle } from './MarkdownArticle'
 
@@ -32,6 +32,10 @@ export function LibraryView({ store }: { store: Store }) {
   const scopeDocIds = store.currentSubId ? [store.currentSubId] : treeDocIds
   const scopedDocs = docsAll.filter((d) => scopeDocIds.includes(d.projectId))
   const q = store.query.trim().toLowerCase()
+  // #4/#10: resultados de conteúdo vêm do servidor (RPC). Metadados (título,
+  // descrição, tags) continuam filtrados localmente para resposta instantânea.
+  const hitById = new Map(store.searchHits.map((h) => [h.id, h]))
+  const otherHits = q ? store.searchHits.filter((h) => !scopeDocIds.includes(h.projectId)) : []
 
   // ---- filtros de categoria ----
   const catCount: Record<string, number> = {}
@@ -59,13 +63,13 @@ export function LibraryView({ store }: { store: Store }) {
         d.title.toLowerCase().includes(q) ||
         d.description.toLowerCase().includes(q) ||
         d.tags.some((t) => t.toLowerCase().includes(q)) ||
-        d.content.toLowerCase().includes(q),
+        hitById.has(d.id),
     )
   filtered.sort((a, b) => {
     if (q) {
-      const ma = matches(a.content, q)
-      const mb = matches(b.content, q)
-      if (mb !== ma) return mb - ma
+      const ra = hitById.get(a.id)?.rank ?? 0
+      const rb = hitById.get(b.id)?.rank ?? 0
+      if (rb !== ra) return rb - ra
     }
     if (!!b.pinned !== !!a.pinned) return (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0)
     return (b.updatedAt || '').localeCompare(a.updatedAt || '')
@@ -324,7 +328,7 @@ export function LibraryView({ store }: { store: Store }) {
             const c = getCat(d.category)
             const cc = catColors[c.color]
             const active = d.id === store.activeId
-            const mc = q ? matches(d.content, q) : 0
+            const hit = q ? hitById.get(d.id) : undefined
             return (
               <Hoverable
                 key={d.id}
@@ -395,6 +399,22 @@ export function LibraryView({ store }: { store: Store }) {
                 >
                   {d.description}
                 </div>
+                {hit?.headline && (
+                  <div
+                    style={{
+                      fontFamily: 'var(--font-secondary)',
+                      fontSize: '11px',
+                      color: 'var(--text-secondary)',
+                      lineHeight: 1.55,
+                      background: 'var(--surface-light)',
+                      border: '1px solid var(--border-light)',
+                      borderRadius: '7px',
+                      padding: '6px 8px',
+                    }}
+                  >
+                    <Snippet text={hit.headline} />
+                  </div>
+                )}
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap', marginTop: '2px' }}>
                   {d.tags.map((t) => (
                     <span
@@ -412,7 +432,7 @@ export function LibraryView({ store }: { store: Store }) {
                       {t}
                     </span>
                   ))}
-                  {mc > 0 && (
+                  {hit && (
                     <span
                       style={{
                         marginLeft: 'auto',
@@ -423,9 +443,10 @@ export function LibraryView({ store }: { store: Store }) {
                         fontSize: '10.5px',
                         color: 'var(--primary)',
                       }}
+                      title="Correspondência no conteúdo"
                     >
                       <Icon name="find_in_page" size={13} />
-                      {mc + (mc === 1 ? ' ocorrência' : ' ocorrências')}
+                      no conteúdo
                     </span>
                   )}
                 </div>
@@ -453,6 +474,83 @@ export function LibraryView({ store }: { store: Store }) {
                   ? 'Ajuste a busca ou os filtros deste projeto.'
                   : 'Use "Subir documento" para adicionar a primeira documentação aqui.'}
               </div>
+            </div>
+          )}
+          {otherHits.length > 0 && (
+            <div
+              style={{
+                marginTop: '8px',
+                paddingTop: '12px',
+                borderTop: '1px solid var(--border-light)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '6px',
+              }}
+            >
+              <span
+                style={{
+                  fontFamily: 'var(--font-primary)',
+                  fontWeight: 600,
+                  fontSize: '10.5px',
+                  letterSpacing: '0.09em',
+                  textTransform: 'uppercase',
+                  color: 'var(--text-muted)',
+                  padding: '0 2px 2px',
+                }}
+              >
+                Em outros projetos · {otherHits.length}
+              </span>
+              {otherHits.map((h) => {
+                const hp = store.project(h.projectId)
+                return (
+                  <Hoverable
+                    as="button"
+                    key={h.id}
+                    onClick={() => store.openDocRef(h.id)}
+                    hoverStyle={{ borderColor: 'rgba(229,72,77,0.4)' }}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      textAlign: 'left',
+                      padding: '9px 11px',
+                      borderRadius: '10px',
+                      background: 'var(--surface)',
+                      border: '1px solid var(--border-light)',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    <Icon name="description" size={15} style={{ flex: 'none', color: 'var(--primary)' }} />
+                    <span style={{ display: 'flex', flexDirection: 'column', minWidth: 0, gap: '1px' }}>
+                      <span
+                        style={{
+                          fontFamily: 'var(--font-primary)',
+                          fontWeight: 600,
+                          fontSize: '12px',
+                          color: 'var(--text)',
+                          whiteSpace: 'nowrap',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                        }}
+                      >
+                        {h.title}
+                      </span>
+                      <span
+                        style={{
+                          fontFamily: 'var(--font-secondary)',
+                          fontSize: '10.5px',
+                          color: 'var(--text-muted)',
+                          whiteSpace: 'nowrap',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                        }}
+                      >
+                        {hp ? hp.name : 'Projeto'}
+                      </span>
+                    </span>
+                  </Hoverable>
+                )
+              })}
             </div>
           )}
         </div>
@@ -524,6 +622,27 @@ function catChipStyle(cc: { bg: string; fg: string }, big: boolean): CSSProperti
   }
 }
 
+// ---------- trecho da busca (marcadores « » -> <mark>, seguro via React) ----------
+function Snippet({ text }: { text: string }) {
+  const parts = text.split(/(«[^»]*»)/g)
+  return (
+    <>
+      {parts.map((p, i) =>
+        p.startsWith('«') && p.endsWith('»') ? (
+          <mark
+            key={i}
+            style={{ background: 'var(--primary-subtle)', color: 'var(--primary)', borderRadius: '3px', padding: '0 2px' }}
+          >
+            {p.slice(1, -1)}
+          </mark>
+        ) : (
+          <span key={i}>{p}</span>
+        ),
+      )}
+    </>
+  )
+}
+
 // ---------- chip de subprojeto ----------
 function SubChip({
   active,
@@ -556,7 +675,9 @@ function SubChip({
 function Reader({ store, doc }: { store: Store; doc: import('../lib/types').Doc }) {
   const c = getCat(doc.category)
   const cc = catColors[c.color]
-  const parsed = mdToHtml(doc.content)
+  // #9/#10: conteúdo é carregado sob demanda; parse memoizado (evita reparse por tecla).
+  const loadingContent = !doc.content
+  const parsed = useMemo(() => mdToHtml(doc.content), [doc.content])
 
   return (
     <>
@@ -666,7 +787,24 @@ function Reader({ store, doc }: { store: Store; doc: import('../lib/types').Doc 
             </span>
           </div>
           <hr style={{ border: 'none', borderTop: '1px solid var(--border-light)', margin: '18px 0 24px' }} />
-          <MarkdownArticle html={parsed.html} query={store.query} docId={doc.id} />
+          {loadingContent ? (
+            <div
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                fontFamily: 'var(--font-secondary)',
+                fontSize: '13px',
+                color: 'var(--text-muted)',
+                padding: '20px 0',
+              }}
+            >
+              <Icon name="hourglass_empty" size={17} />
+              Carregando conteúdo…
+            </div>
+          ) : (
+            <MarkdownArticle html={parsed.html} query={store.query} docId={doc.id} />
+          )}
         </div>
       </div>
 

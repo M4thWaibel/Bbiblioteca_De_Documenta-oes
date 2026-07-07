@@ -1,9 +1,10 @@
-import type { CSSProperties } from 'react'
+import { useMemo, type CSSProperties } from 'react'
 import type { Store } from '../../store/useStore'
 import { Icon } from '../ui/Icon'
 import { Hoverable } from '../ui/Hoverable'
 import { primaryBtnStyle, uploadBtnHover } from '../ui/styles'
 import { cats } from '../../lib/constants'
+import { mdToHtml } from '../../lib/markdown'
 import {
   ModalShell,
   ModalCloseButton,
@@ -21,6 +22,8 @@ export function UploadModal({ store }: { store: Store }) {
   const subsList = store.currentProjectId ? store.subprojects(store.currentProjectId) : []
   const hasFile = !!f.content
   const disabled = !(f.title.trim() && f.content.trim())
+  // #2: pré-visualização ao vivo do Markdown (memoizada por conteúdo).
+  const preview = useMemo(() => mdToHtml(f.content).html, [f.content])
 
   const dropStyle: CSSProperties = {
     display: 'flex',
@@ -38,7 +41,7 @@ export function UploadModal({ store }: { store: Store }) {
   }
 
   return (
-    <ModalShell onClose={store.closeUpload} width={560}>
+    <ModalShell onClose={store.closeUpload} width={920}>
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '12px', marginBottom: '18px' }}>
         <div>
           <div style={{ fontFamily: 'var(--font-primary)', fontWeight: 600, fontSize: '18px', color: 'var(--text)' }}>
@@ -50,7 +53,7 @@ export function UploadModal({ store }: { store: Store }) {
             ) : (
               <>
                 Salvando em <strong style={{ color: 'var(--primary)' }}>{curProj?.name}</strong> · envie
-                um .md e padronize os campos.
+                um .md ou escreva do zero, com pré-visualização ao vivo.
               </>
             )}
           </div>
@@ -152,15 +155,53 @@ export function UploadModal({ store }: { store: Store }) {
         </div>
       </div>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', marginBottom: '16px' }}>
-        <label style={modalLabel}>Conteúdo (Markdown)</label>
-        <textarea
-          value={f.content}
-          onChange={(e) => store.patchForm('content')(e.target.value)}
-          placeholder={'# Título\n\nEscreva ou cole o conteúdo em Markdown…'}
-          rows={12}
-          style={{ ...modalTextarea, minHeight: '220px' }}
-        />
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '16px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px' }}>
+          <label style={modalLabel}>Conteúdo (Markdown)</label>
+          <span
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '5px',
+              fontFamily: 'var(--font-secondary)',
+              fontSize: '11px',
+              color: 'var(--text-muted)',
+            }}
+          >
+            <Icon name="visibility" size={14} />
+            Pré-visualização ao vivo
+          </span>
+        </div>
+        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+          <textarea
+            value={f.content}
+            onChange={(e) => store.patchForm('content')(e.target.value)}
+            placeholder={'# Título\n\nEscreva ou cole o conteúdo em Markdown…'}
+            style={{ ...modalTextarea, flex: '1 1 320px', minWidth: '260px', minHeight: '360px' }}
+          />
+          <div
+            className="md-body"
+            style={{
+              flex: '1 1 320px',
+              minWidth: '260px',
+              minHeight: '360px',
+              maxHeight: '360px',
+              overflowY: 'auto',
+              padding: '14px 18px',
+              borderRadius: '8px',
+              background: 'var(--surface)',
+              border: '1px solid var(--border-light)',
+            }}
+          >
+            {f.content.trim() ? (
+              <div dangerouslySetInnerHTML={{ __html: preview }} />
+            ) : (
+              <span style={{ fontFamily: 'var(--font-secondary)', fontSize: '12.5px', color: 'var(--text-muted)' }}>
+                A pré-visualização aparece aqui conforme você escreve.
+              </span>
+            )}
+          </div>
+        </div>
       </div>
 
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '10px' }}>

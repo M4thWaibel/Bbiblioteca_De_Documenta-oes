@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import * as api from '../lib/api'
+import type { DocSearchHit } from '../lib/api'
 import type {
   Doc,
   Priority,
@@ -53,6 +54,8 @@ export function useStore(me: string, myEmail: string) {
   const [cat, setCat] = useState('all')
   const [tag, setTag] = useState<string | null>(null)
   const [copiedId, setCopiedId] = useState<string | null>(null)
+  const [searchHits, setSearchHits] = useState<DocSearchHit[]>([])
+  const [searchLoading, setSearchLoading] = useState(false)
 
   // ---- modais / formulários ----
   const [uploadOpen, setUploadOpen] = useState(false)
@@ -100,6 +103,54 @@ export function useStore(me: string, myEmail: string) {
       alive = false
     }
   }, [me, myEmail, reload])
+
+  // #9: carrega o corpo do documento ativo sob demanda e injeta no doc.
+  useEffect(() => {
+    if (!activeId) return
+    const d = docs.find((x) => x.id === activeId)
+    if (!d || d.content) return
+    let alive = true
+    api
+      .getDocContent(activeId)
+      .then((content) => {
+        if (alive) setDocs((prev) => prev.map((x) => (x.id === activeId ? { ...x, content } : x)))
+      })
+      .catch((e) => {
+        if (alive) setError(e instanceof Error ? e.message : String(e))
+      })
+    return () => {
+      alive = false
+    }
+  }, [activeId, docs])
+
+  // #4/#10: busca full-text no servidor (com debounce).
+  useEffect(() => {
+    const q = query.trim()
+    if (q.length < 2) {
+      setSearchHits([])
+      setSearchLoading(false)
+      return
+    }
+    let alive = true
+    setSearchLoading(true)
+    const t = setTimeout(() => {
+      api
+        .searchDocuments(q)
+        .then((hits) => {
+          if (alive) setSearchHits(hits)
+        })
+        .catch((e) => {
+          if (alive) setError(e instanceof Error ? e.message : String(e))
+        })
+        .finally(() => {
+          if (alive) setSearchLoading(false)
+        })
+    }, 250)
+    return () => {
+      alive = false
+      clearTimeout(t)
+    }
+  }, [query])
 
   // ============================================================
   // Helpers de leitura
@@ -319,16 +370,25 @@ export function useStore(me: string, myEmail: string) {
     setUploadOpen(true)
   }, [currentSubId])
   const openEditDoc = useCallback(
-    (id: string) => {
+    async (id: string) => {
       const d = docs.find((x) => x.id === id)
       if (!d) return
+      let content = d.content
+      if (!content) {
+        try {
+          content = await api.getDocContent(id)
+        } catch (e) {
+          setError(e instanceof Error ? e.message : String(e))
+          return
+        }
+      }
       setEditingDocId(id)
       setForm({
         title: d.title,
         description: d.description === 'Sem descrição.' ? '' : d.description,
         category: d.category,
         tagsText: d.tags.join(', '),
-        content: d.content,
+        content,
         fileName: '',
         subId: d.projectId,
       })
@@ -593,6 +653,8 @@ export function useStore(me: string, myEmail: string) {
       tag,
       setTag,
       copiedId,
+      searchHits,
+      searchLoading,
       goProjects,
       goBoard,
       openProject,
@@ -673,6 +735,8 @@ export function useStore(me: string, myEmail: string) {
       cat,
       tag,
       copiedId,
+      searchHits,
+      searchLoading,
       goProjects,
       goBoard,
       openProject,

@@ -69,7 +69,7 @@ export function MembersModal({ store }: { store: Store }) {
                     textTransform: 'uppercase',
                     color: 'var(--primary)',
                     background: 'var(--primary-subtle)',
-                    border: '1px solid rgba(229,72,77,0.3)',
+                    border: '1px solid rgba(var(--primary-rgb),0.3)',
                     borderRadius: '6px',
                     padding: '3px 8px',
                   }}

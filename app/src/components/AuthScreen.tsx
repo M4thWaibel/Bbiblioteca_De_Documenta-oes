@@ -138,7 +138,7 @@ export function AuthScreen() {
           position: 'relative',
           width: 'min(430px,92vw)',
           background: 'var(--surface-elevated)',
-          border: '1px solid rgba(229,72,77,0.18)',
+          border: '1px solid rgba(var(--primary-rgb),0.18)',
           borderRadius: '20px',
           padding: '38px 34px 28px',
           boxShadow: '0 40px 80px rgba(0,0,0,0.6)',
@@ -167,7 +167,7 @@ export function AuthScreen() {
               fontFamily: 'var(--font-primary)',
               fontWeight: 700,
               fontSize: '18px',
-              boxShadow: '0 6px 18px rgba(229,72,77,0.4)',
+              boxShadow: '0 6px 18px rgba(var(--primary-rgb),0.4)',
             }}
           >
             AP
@@ -305,7 +305,7 @@ export function AuthScreen() {
             fontWeight: 700,
             fontSize: '14px',
             letterSpacing: '0.04em',
-            boxShadow: '0 4px 16px rgba(229,72,77,0.35)',
+            boxShadow: '0 4px 16px rgba(var(--primary-rgb),0.35)',
             transition: 'transform 200ms var(--ease-standard),box-shadow 200ms',
             marginTop: '4px',
             opacity: busy ? 0.7 : 1,

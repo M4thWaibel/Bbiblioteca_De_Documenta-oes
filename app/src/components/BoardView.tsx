@@ -74,7 +74,7 @@ export function BoardView({ store }: { store: Store }) {
                 key={f.id ?? 'all'}
                 as="button"
                 onClick={() => store.setBoardProjFilter(f.id)}
-                hoverStyle={active ? {} : { borderColor: 'rgba(229,72,77,0.4)', color: 'var(--text)' }}
+                hoverStyle={active ? {} : { borderColor: 'rgba(var(--primary-rgb),0.4)', color: 'var(--text)' }}
                 style={chipStyle(active)}
               >
                 {f.label}
@@ -94,7 +94,7 @@ export function BoardView({ store }: { store: Store }) {
                     key={o.id}
                     as="button"
                     onClick={() => setPriFilter(o.id)}
-                    hoverStyle={active ? {} : { borderColor: 'rgba(229,72,77,0.4)', color: 'var(--text)' }}
+                    hoverStyle={active ? {} : { borderColor: 'rgba(var(--primary-rgb),0.4)', color: 'var(--text)' }}
                     style={chipStyle(active)}
                   >
                     {o.label}
@@ -235,7 +235,7 @@ export function BoardView({ store }: { store: Store }) {
                   <Hoverable
                     as="button"
                     onClick={() => store.openTaskModal(cm.status)}
-                    hoverStyle={{ borderColor: 'rgba(229,72,77,0.5)', color: 'var(--text-secondary)' }}
+                    hoverStyle={{ borderColor: 'rgba(var(--primary-rgb),0.5)', color: 'var(--text-secondary)' }}
                     style={{
                       border: '1.5px dashed var(--border-light)',
                       background: 'transparent',
@@ -323,7 +323,7 @@ function TaskCard({
         padding: '2px 7px',
         borderRadius: '6px',
         background: 'var(--primary-subtle)',
-        border: '1px solid rgba(229,72,77,0.3)',
+        border: '1px solid rgba(var(--primary-rgb),0.3)',
         color: 'var(--primary)',
         fontFamily: 'var(--font-secondary)',
         fontSize: '10.5px',
@@ -343,7 +343,7 @@ function TaskCard({
       onDragOver={(e: React.DragEvent) => e.preventDefault()}
       onDrop={onReorder}
       onClick={() => store.openTask(task.id)}
-      hoverStyle={{ borderColor: 'rgba(229,72,77,0.45)', boxShadow: 'var(--elevation-2)' }}
+      hoverStyle={{ borderColor: 'rgba(var(--primary-rgb),0.45)', boxShadow: 'var(--elevation-2)' }}
       style={{
         display: 'flex',
         flexDirection: 'column',

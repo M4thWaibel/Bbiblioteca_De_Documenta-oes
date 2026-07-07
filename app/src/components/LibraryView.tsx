@@ -121,26 +121,48 @@ export function LibraryView({ store }: { store: Store }) {
             </span>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
               {store.currentSubId && (
-                <Hoverable
-                  as="button"
-                  onClick={() => store.deleteProject(store.currentSubId!)}
-                  title="Excluir subprojeto"
-                  hoverStyle={dangerHover}
-                  style={{
-                    width: '26px',
-                    height: '26px',
-                    borderRadius: '7px',
-                    background: 'transparent',
-                    border: '1px solid var(--border-light)',
-                    color: 'var(--text-muted)',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
-                >
-                  <Icon name="delete" size={15} />
-                </Hoverable>
+                <>
+                  <Hoverable
+                    as="button"
+                    onClick={() => store.openEditProject(store.currentSubId!)}
+                    title="Editar subprojeto"
+                    hoverStyle={ghostHover}
+                    style={{
+                      width: '26px',
+                      height: '26px',
+                      borderRadius: '7px',
+                      background: 'transparent',
+                      border: '1px solid var(--border-light)',
+                      color: 'var(--text-muted)',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <Icon name="edit" size={14} />
+                  </Hoverable>
+                  <Hoverable
+                    as="button"
+                    onClick={() => store.deleteProject(store.currentSubId!)}
+                    title="Excluir subprojeto"
+                    hoverStyle={dangerHover}
+                    style={{
+                      width: '26px',
+                      height: '26px',
+                      borderRadius: '7px',
+                      background: 'transparent',
+                      border: '1px solid var(--border-light)',
+                      color: 'var(--text-muted)',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <Icon name="delete" size={15} />
+                  </Hoverable>
+                </>
               )}
               <Hoverable
                 as="button"
@@ -251,7 +273,7 @@ export function LibraryView({ store }: { store: Store }) {
                   key={c.id}
                   as="button"
                   onClick={() => store.setCat(c.id)}
-                  hoverStyle={active ? {} : { borderColor: 'rgba(229,72,77,0.4)', color: 'var(--text)' }}
+                  hoverStyle={active ? {} : { borderColor: 'rgba(var(--primary-rgb),0.4)', color: 'var(--text)' }}
                   style={chipStyle(active)}
                 >
                   <Icon name={c.icon} size={15} />
@@ -271,7 +293,7 @@ export function LibraryView({ store }: { store: Store }) {
                 padding: '5px 8px 5px 11px',
                 borderRadius: '8px',
                 background: 'var(--primary-subtle)',
-                border: '1px solid rgba(229,72,77,0.4)',
+                border: '1px solid rgba(var(--primary-rgb),0.4)',
                 color: 'var(--primary)',
                 fontFamily: 'var(--font-primary)',
                 fontWeight: 600,
@@ -333,7 +355,7 @@ export function LibraryView({ store }: { store: Store }) {
               <Hoverable
                 key={d.id}
                 onClick={() => store.openDoc(d.id)}
-                hoverStyle={active ? {} : { transform: 'translateY(-2px)', borderColor: 'rgba(229,72,77,0.4)' }}
+                hoverStyle={active ? {} : { transform: 'translateY(-2px)', borderColor: 'rgba(var(--primary-rgb),0.4)' }}
                 style={{
                   display: 'flex',
                   flexDirection: 'column',
@@ -345,7 +367,7 @@ export function LibraryView({ store }: { store: Store }) {
                   textAlign: 'left',
                   transition: 'transform 200ms var(--ease-standard), border-color 200ms, background 200ms',
                   background: active ? 'var(--surface-elevated)' : 'var(--surface)',
-                  borderColor: active ? 'rgba(229,72,77,0.6)' : 'var(--border-light)',
+                  borderColor: active ? 'rgba(var(--primary-rgb),0.6)' : 'var(--border-light)',
                   boxShadow: active ? 'var(--glow-primary)' : 'none',
                 }}
               >
@@ -507,7 +529,7 @@ export function LibraryView({ store }: { store: Store }) {
                     as="button"
                     key={h.id}
                     onClick={() => store.openDocRef(h.id)}
-                    hoverStyle={{ borderColor: 'rgba(229,72,77,0.4)' }}
+                    hoverStyle={{ borderColor: 'rgba(var(--primary-rgb),0.4)' }}
                     style={{
                       display: 'flex',
                       alignItems: 'center',
@@ -661,7 +683,7 @@ function SubChip({
     <Hoverable
       as="button"
       onClick={onClick}
-      hoverStyle={active ? {} : { borderColor: 'rgba(229,72,77,0.4)', color: 'var(--text)' }}
+      hoverStyle={active ? {} : { borderColor: 'rgba(var(--primary-rgb),0.4)', color: 'var(--text)' }}
       style={subChipStyle(active)}
     >
       <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: dotColor, flex: 'none' }} />
@@ -705,7 +727,7 @@ function Reader({ store, doc }: { store: Store; doc: import('../lib/types').Doc 
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  border: '1px solid ' + (doc.pinned ? 'rgba(229,72,77,0.5)' : 'var(--border-light)'),
+                  border: '1px solid ' + (doc.pinned ? 'rgba(var(--primary-rgb),0.5)' : 'var(--border-light)'),
                   background: doc.pinned ? 'var(--primary-subtle)' : 'transparent',
                   color: doc.pinned ? 'var(--primary)' : 'var(--text-secondary)',
                 }}

@@ -1,9 +1,10 @@
-import type { CSSProperties } from 'react'
+import { useState, type CSSProperties } from 'react'
 import type { Store } from '../store/useStore'
 import { Icon } from './ui/Icon'
 import { Hoverable } from './ui/Hoverable'
 import { ghostHover, navBtnStyle, uploadBtnHover } from './ui/styles'
 import { initials } from '../lib/format'
+import { accents } from '../lib/accents'
 
 const ghostBtn: CSSProperties = {
   width: '40px',
@@ -23,12 +24,17 @@ export function Header({
   onLogout,
   theme,
   onToggleTheme,
+  accent,
+  onSetAccent,
 }: {
   store: Store
   onLogout: () => void
   theme: 'dark' | 'light'
   onToggleTheme: () => void
+  accent: string
+  onSetAccent: (id: string) => void
 }) {
+  const [accentOpen, setAccentOpen] = useState(false)
   const { view, currentProjectId, currentSubId } = store
   const isLibrary = view === 'library' && !!currentProjectId
   const curProj = store.project(currentProjectId)
@@ -151,7 +157,7 @@ export function Header({
                   padding: '6px 12px',
                   borderRadius: '10px',
                   background: 'var(--primary-subtle)',
-                  border: '1px solid rgba(229,72,77,0.35)',
+                  border: '1px solid rgba(var(--primary-rgb),0.35)',
                   minWidth: 0,
                 }}
               >
@@ -243,7 +249,7 @@ export function Header({
               fontSize: '13px',
               letterSpacing: '0.04em',
               cursor: 'pointer',
-              boxShadow: '0 4px 14px rgba(229,72,77,0.28)',
+              boxShadow: '0 4px 14px rgba(var(--primary-rgb),0.28)',
               transition: 'transform 200ms var(--ease-standard),box-shadow 200ms',
             }}
           >
@@ -251,6 +257,66 @@ export function Header({
             {view === 'board' ? 'Nova tarefa' : 'Subir documento'}
           </Hoverable>
         )}
+
+        <div style={{ position: 'relative' }}>
+          <Hoverable
+            as="button"
+            onClick={() => setAccentOpen((o) => !o)}
+            title="Cor de destaque"
+            aria-label="Cor de destaque"
+            hoverStyle={ghostHover}
+            style={ghostBtn}
+          >
+            <Icon name="palette" size={19} />
+          </Hoverable>
+          {accentOpen && (
+            <>
+              <div
+                onClick={() => setAccentOpen(false)}
+                style={{ position: 'fixed', inset: 0, zIndex: 40 }}
+              />
+              <div
+                style={{
+                  position: 'absolute',
+                  top: '48px',
+                  right: 0,
+                  zIndex: 41,
+                  display: 'flex',
+                  gap: '8px',
+                  padding: '10px',
+                  borderRadius: '12px',
+                  background: 'var(--surface-elevated)',
+                  border: '1px solid var(--border-light)',
+                  boxShadow: 'var(--elevation-3)',
+                }}
+              >
+                {accents.map((a) => {
+                  const active = accent === a.id
+                  return (
+                    <button
+                      key={a.id}
+                      onClick={() => {
+                        onSetAccent(a.id)
+                        setAccentOpen(false)
+                      }}
+                      title={a.label}
+                      aria-label={a.label}
+                      style={{
+                        width: '26px',
+                        height: '26px',
+                        borderRadius: '50%',
+                        background: a.swatch,
+                        border: '2px solid ' + (active ? 'var(--text)' : 'transparent'),
+                        cursor: 'pointer',
+                        flex: 'none',
+                      }}
+                    />
+                  )
+                })}
+              </div>
+            </>
+          )}
+        </div>
 
         <Hoverable
           as="button"

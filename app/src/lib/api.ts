@@ -151,6 +151,21 @@ export async function createProject(
   return projectId
 }
 
+export async function updateProject(
+  id: string,
+  form: { name: string; description: string; color: string },
+) {
+  const { error } = await supabase
+    .from('projects')
+    .update({
+      name: form.name.trim(),
+      description: form.description.trim() || 'Sem descrição.',
+      color: form.color,
+    })
+    .eq('id', id)
+  if (error) throw error
+}
+
 export async function deleteProject(id: string) {
   const { error } = await supabase.from('projects').delete().eq('id', id)
   if (error) throw error

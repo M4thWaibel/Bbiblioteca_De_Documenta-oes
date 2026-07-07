@@ -1,7 +1,7 @@
 import type { Store } from '../store/useStore'
 import { Icon } from './ui/Icon'
 import { Hoverable } from './ui/Hoverable'
-import { dangerHover, dashedHover, uploadBtnHover } from './ui/styles'
+import { dangerHover, dashedHover, ghostHover, uploadBtnHover } from './ui/styles'
 import { avatarStyle, initials } from '../lib/format'
 
 export function ProjectsView({ store }: { store: Store }) {
@@ -63,7 +63,7 @@ export function ProjectsView({ store }: { store: Store }) {
               fontSize: '13px',
               letterSpacing: '0.03em',
               cursor: 'pointer',
-              boxShadow: '0 4px 14px rgba(229,72,77,0.28)',
+              boxShadow: '0 4px 14px rgba(var(--primary-rgb),0.28)',
             }}
           >
             <Icon name="add" size={19} />
@@ -93,7 +93,7 @@ export function ProjectsView({ store }: { store: Store }) {
                 hoverStyle={{
                   transform: 'translateY(-3px)',
                   boxShadow: 'var(--elevation-3)',
-                  borderColor: 'rgba(229,72,77,0.4)',
+                  borderColor: 'rgba(var(--primary-rgb),0.4)',
                 }}
                 style={{
                   display: 'flex',
@@ -143,30 +143,54 @@ export function ProjectsView({ store }: { store: Store }) {
                       {p.name}
                     </span>
                   </div>
-                  <Hoverable
-                    as="button"
-                    onClick={(e: React.MouseEvent) => {
-                      e.stopPropagation()
-                      store.deleteProject(p.id)
-                    }}
-                    title="Excluir projeto"
-                    hoverStyle={dangerHover}
-                    style={{
-                      width: '30px',
-                      height: '30px',
-                      flex: 'none',
-                      borderRadius: '8px',
-                      background: 'transparent',
-                      border: '1px solid var(--border-light)',
-                      color: 'var(--text-muted)',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                    }}
-                  >
-                    <Icon name="delete" size={16} />
-                  </Hoverable>
+                  <div style={{ display: 'flex', gap: '6px', flex: 'none' }}>
+                    <Hoverable
+                      as="button"
+                      onClick={(e: React.MouseEvent) => {
+                        e.stopPropagation()
+                        store.openEditProject(p.id)
+                      }}
+                      title="Editar projeto"
+                      hoverStyle={ghostHover}
+                      style={{
+                        width: '30px',
+                        height: '30px',
+                        borderRadius: '8px',
+                        background: 'transparent',
+                        border: '1px solid var(--border-light)',
+                        color: 'var(--text-muted)',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}
+                    >
+                      <Icon name="edit" size={15} />
+                    </Hoverable>
+                    <Hoverable
+                      as="button"
+                      onClick={(e: React.MouseEvent) => {
+                        e.stopPropagation()
+                        store.deleteProject(p.id)
+                      }}
+                      title="Excluir projeto"
+                      hoverStyle={dangerHover}
+                      style={{
+                        width: '30px',
+                        height: '30px',
+                        borderRadius: '8px',
+                        background: 'transparent',
+                        border: '1px solid var(--border-light)',
+                        color: 'var(--text-muted)',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}
+                    >
+                      <Icon name="delete" size={16} />
+                    </Hoverable>
+                  </div>
                 </div>
 
                 <p

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type CSSProperties } from 'react'
 import { useAuth } from './context/AuthContext'
 import { useStore } from './store/useStore'
 import { Loading } from './components/Loading'
@@ -12,6 +12,7 @@ import { UploadModal } from './components/modals/UploadModal'
 import { MembersModal } from './components/modals/MembersModal'
 import { TaskModal } from './components/modals/TaskModal'
 import { Icon } from './components/ui/Icon'
+import { accentVars, ACCENT_KEY } from './lib/accents'
 
 const THEME_KEY = 'biblioteca_theme'
 type Theme = 'dark' | 'light'
@@ -25,6 +26,13 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem(THEME_KEY, theme)
   }, [theme])
+
+  const [accent, setAccent] = useState<string>(
+    () => localStorage.getItem(ACCENT_KEY) || 'vermelho',
+  )
+  useEffect(() => {
+    localStorage.setItem(ACCENT_KEY, accent)
+  }, [accent])
 
   const toggleTheme = () => setTheme((t) => (t === 'dark' ? 'light' : 'dark'))
   const themeClass = theme === 'light' ? 'light-theme' : ''
@@ -40,21 +48,26 @@ export default function App() {
         onLogout={signOut}
         theme={theme}
         onToggleTheme={toggleTheme}
+        accent={accent}
+        onSetAccent={setAccent}
       />
     )
 
   return (
     <div
       className={themeClass}
-      style={{
-        position: 'fixed',
-        inset: 0,
-        display: 'flex',
-        flexDirection: 'column',
-        background: 'var(--background)',
-        color: 'var(--text)',
-        fontFamily: 'var(--font-secondary)',
-      }}
+      style={
+        {
+          position: 'fixed',
+          inset: 0,
+          display: 'flex',
+          flexDirection: 'column',
+          background: 'var(--background)',
+          color: 'var(--text)',
+          fontFamily: 'var(--font-secondary)',
+          ...accentVars(accent),
+        } as CSSProperties
+      }
     >
       {content}
     </div>
@@ -67,18 +80,29 @@ function AuthedApp({
   onLogout,
   theme,
   onToggleTheme,
+  accent,
+  onSetAccent,
 }: {
   userId: string
   email: string
   onLogout: () => void
   theme: Theme
   onToggleTheme: () => void
+  accent: string
+  onSetAccent: (id: string) => void
 }) {
   const store = useStore(userId, email)
 
   return (
     <>
-      <Header store={store} onLogout={onLogout} theme={theme} onToggleTheme={onToggleTheme} />
+      <Header
+        store={store}
+        onLogout={onLogout}
+        theme={theme}
+        onToggleTheme={onToggleTheme}
+        accent={accent}
+        onSetAccent={onSetAccent}
+      />
 
       {store.dataLoading ? (
         <div style={{ flex: 1, position: 'relative' }}>

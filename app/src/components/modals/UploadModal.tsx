@@ -1,10 +1,18 @@
-import { useMemo, type CSSProperties } from 'react'
+import { useEffect, useMemo, useState, type CSSProperties } from 'react'
 import type { Store } from '../../store/useStore'
 import { Icon } from '../ui/Icon'
 import { Hoverable } from '../ui/Hoverable'
 import { primaryBtnStyle, uploadBtnHover } from '../ui/styles'
 import { cats } from '../../lib/constants'
 import { mdToHtml } from '../../lib/markdown'
+
+const EDITOR_MODE_KEY = 'biblioteca_editor_mode'
+type EditorMode = 'edit' | 'split' | 'preview'
+const MODE_OPTS: [EditorMode, string, string][] = [
+  ['edit', 'Editor', 'edit_note'],
+  ['split', 'Dividido', 'vertical_split'],
+  ['preview', 'Prévia', 'visibility'],
+]
 import {
   ModalShell,
   ModalCloseButton,
@@ -24,6 +32,12 @@ export function UploadModal({ store }: { store: Store }) {
   const disabled = !(f.title.trim() && f.content.trim())
   // #2: pré-visualização ao vivo do Markdown (memoizada por conteúdo).
   const preview = useMemo(() => mdToHtml(f.content).html, [f.content])
+  const [mode, setMode] = useState<EditorMode>(
+    () => (localStorage.getItem(EDITOR_MODE_KEY) as EditorMode) || 'split',
+  )
+  useEffect(() => {
+    localStorage.setItem(EDITOR_MODE_KEY, mode)
+  }, [mode])
 
   const dropStyle: CSSProperties = {
     display: 'flex',
@@ -36,7 +50,7 @@ export function UploadModal({ store }: { store: Store }) {
     marginBottom: '16px',
     borderRadius: '12px',
     cursor: 'pointer',
-    border: '1.5px dashed ' + (hasFile ? 'rgba(229,72,77,0.5)' : 'var(--border-light)'),
+    border: '1.5px dashed ' + (hasFile ? 'rgba(var(--primary-rgb),0.5)' : 'var(--border-light)'),
     background: hasFile ? 'var(--primary-subtle)' : 'var(--surface)',
   }
 
@@ -158,49 +172,79 @@ export function UploadModal({ store }: { store: Store }) {
       <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '16px' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px' }}>
           <label style={modalLabel}>Conteúdo (Markdown)</label>
-          <span
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '5px',
-              fontFamily: 'var(--font-secondary)',
-              fontSize: '11px',
-              color: 'var(--text-muted)',
-            }}
-          >
-            <Icon name="visibility" size={14} />
-            Pré-visualização ao vivo
-          </span>
-        </div>
-        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-          <textarea
-            value={f.content}
-            onChange={(e) => store.patchForm('content')(e.target.value)}
-            placeholder={'# Título\n\nEscreva ou cole o conteúdo em Markdown…'}
-            style={{ ...modalTextarea, flex: '1 1 320px', minWidth: '260px', minHeight: '360px' }}
-          />
           <div
-            className="md-body"
             style={{
-              flex: '1 1 320px',
-              minWidth: '260px',
-              minHeight: '360px',
-              maxHeight: '360px',
-              overflowY: 'auto',
-              padding: '14px 18px',
+              display: 'flex',
+              gap: '2px',
+              padding: '2px',
               borderRadius: '8px',
               background: 'var(--surface)',
               border: '1px solid var(--border-light)',
             }}
           >
-            {f.content.trim() ? (
-              <div dangerouslySetInnerHTML={{ __html: preview }} />
-            ) : (
-              <span style={{ fontFamily: 'var(--font-secondary)', fontSize: '12.5px', color: 'var(--text-muted)' }}>
-                A pré-visualização aparece aqui conforme você escreve.
-              </span>
-            )}
+            {MODE_OPTS.map(([m, label, icon]) => {
+              const on = mode === m
+              return (
+                <button
+                  key={m}
+                  type="button"
+                  onClick={() => setMode(m)}
+                  title={label}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '5px',
+                    padding: '4px 9px',
+                    borderRadius: '6px',
+                    border: 'none',
+                    cursor: 'pointer',
+                    fontFamily: 'var(--font-primary)',
+                    fontWeight: 600,
+                    fontSize: '11px',
+                    background: on ? 'var(--primary-subtle)' : 'transparent',
+                    color: on ? 'var(--primary)' : 'var(--text-muted)',
+                  }}
+                >
+                  <Icon name={icon} size={14} />
+                  {label}
+                </button>
+              )
+            })}
           </div>
+        </div>
+        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+          {mode !== 'preview' && (
+            <textarea
+              value={f.content}
+              onChange={(e) => store.patchForm('content')(e.target.value)}
+              placeholder={'# Título\n\nEscreva ou cole o conteúdo em Markdown…'}
+              style={{ ...modalTextarea, flex: '1 1 320px', minWidth: '260px', minHeight: '360px' }}
+            />
+          )}
+          {mode !== 'edit' && (
+            <div
+              className="md-body"
+              style={{
+                flex: '1 1 320px',
+                minWidth: '260px',
+                minHeight: '360px',
+                maxHeight: '360px',
+                overflowY: 'auto',
+                padding: '14px 18px',
+                borderRadius: '8px',
+                background: 'var(--surface)',
+                border: '1px solid var(--border-light)',
+              }}
+            >
+              {f.content.trim() ? (
+                <div dangerouslySetInnerHTML={{ __html: preview }} />
+              ) : (
+                <span style={{ fontFamily: 'var(--font-secondary)', fontSize: '12.5px', color: 'var(--text-muted)' }}>
+                  A pré-visualização aparece aqui conforme você escreve.
+                </span>
+              )}
+            </div>
+          )}
         </div>
       </div>
 

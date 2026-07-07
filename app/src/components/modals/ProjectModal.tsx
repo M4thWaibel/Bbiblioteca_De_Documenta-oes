@@ -14,6 +14,7 @@ import {
 
 export function ProjectModal({ store }: { store: Store }) {
   const f = store.projForm
+  const isEditing = !!store.editingProjId
   const parent = f.parentId ? store.project(f.parentId) : null
   const disabled = !f.name.trim()
 
@@ -22,7 +23,13 @@ export function ProjectModal({ store }: { store: Store }) {
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '12px', marginBottom: '18px' }}>
         <div>
           <div style={{ fontFamily: 'var(--font-primary)', fontWeight: 600, fontSize: '18px', color: 'var(--text)' }}>
-            {parent ? 'Novo subprojeto' : 'Novo projeto'}
+            {parent
+              ? isEditing
+                ? 'Editar subprojeto'
+                : 'Novo subprojeto'
+              : isEditing
+                ? 'Editar projeto'
+                : 'Novo projeto'}
           </div>
           <div style={{ fontFamily: 'var(--font-secondary)', fontSize: '12.5px', color: 'var(--text-muted)', marginTop: '3px' }}>
             {parent
@@ -77,6 +84,22 @@ export function ProjectModal({ store }: { store: Store }) {
               }}
             />
           ))}
+          <input
+            type="color"
+            value={f.color}
+            onChange={(e) => store.setProjColor(e.target.value)}
+            title="Cor personalizada"
+            aria-label="Cor personalizada"
+            style={{
+              width: '34px',
+              height: '34px',
+              borderRadius: '9px',
+              border: '1px solid var(--border-light)',
+              padding: 0,
+              background: 'transparent',
+              cursor: 'pointer',
+            }}
+          />
         </div>
       </div>
 
@@ -91,8 +114,8 @@ export function ProjectModal({ store }: { store: Store }) {
           hoverStyle={disabled ? undefined : uploadBtnHover}
           style={primaryBtnStyle(disabled)}
         >
-          <Icon name={parent ? 'account_tree' : 'create_new_folder'} size={18} />
-          {parent ? 'Criar subprojeto' : 'Criar projeto'}
+          <Icon name={isEditing ? 'save' : parent ? 'account_tree' : 'create_new_folder'} size={18} />
+          {isEditing ? 'Salvar' : parent ? 'Criar subprojeto' : 'Criar projeto'}
         </Hoverable>
       </div>
     </ModalShell>

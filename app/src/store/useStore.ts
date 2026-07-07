@@ -65,6 +65,7 @@ export function useStore(me: string, myEmail: string) {
   const [form, setForm] = useState<UploadForm>(emptyUploadForm())
   const [editingDocId, setEditingDocId] = useState<string | null>(null)
   const [projModalOpen, setProjModalOpen] = useState(false)
+  const [editingProjId, setEditingProjId] = useState<string | null>(null)
   const [projForm, setProjForm] = useState<ProjectForm>({
     name: '',
     description: '',
@@ -350,29 +351,52 @@ export function useStore(me: string, myEmail: string) {
   // Projetos
   // ============================================================
   const openProjModal = useCallback(() => {
+    setEditingProjId(null)
     setProjForm({ name: '', description: '', color: '#E5484D', parentId: null })
     setProjModalOpen(true)
   }, [])
   const openSubprojModal = useCallback(() => {
+    setEditingProjId(null)
     setProjForm({ name: '', description: '', color: '#2A6FDB', parentId: currentProjectId })
     setProjModalOpen(true)
   }, [currentProjectId])
+  const openEditProject = useCallback(
+    (id: string) => {
+      const p = project(id)
+      if (!p) return
+      setEditingProjId(id)
+      setProjForm({
+        name: p.name,
+        description: p.description === 'Sem descrição.' ? '' : p.description,
+        color: p.color,
+        parentId: p.parentId,
+      })
+      setProjModalOpen(true)
+    },
+    [project],
+  )
   const closeProjModal = useCallback(() => setProjModalOpen(false), [])
 
   const saveProject = useCallback(async () => {
     const f = projForm
     if (!f.name.trim()) return
-    const parent = f.parentId ? project(f.parentId) : null
     try {
-      const id = await api.createProject(f, me, parent ? parent.members : [])
-      setProjModalOpen(false)
-      await reload()
-      if (f.parentId) selectSub(id)
-      else openProject(id)
+      if (editingProjId) {
+        await api.updateProject(editingProjId, f)
+        setProjModalOpen(false)
+        await reload()
+      } else {
+        const parent = f.parentId ? project(f.parentId) : null
+        const id = await api.createProject(f, me, parent ? parent.members : [])
+        setProjModalOpen(false)
+        await reload()
+        if (f.parentId) selectSub(id)
+        else openProject(id)
+      }
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e))
     }
-  }, [projForm, project, me, reload, selectSub, openProject])
+  }, [projForm, editingProjId, project, me, reload, selectSub, openProject])
 
   const deleteProject = useCallback(
     async (id: string) => {
@@ -756,8 +780,10 @@ export function useStore(me: string, myEmail: string) {
       dragIdRef,
       // projetos
       projModalOpen,
+      editingProjId,
       projForm,
       openProjModal,
+      openEditProject,
       openSubprojModal,
       closeProjModal,
       saveProject,
@@ -836,8 +862,10 @@ export function useStore(me: string, myEmail: string) {
       openProjectRef,
       scrollToHeading,
       projModalOpen,
+      editingProjId,
       projForm,
       openProjModal,
+      openEditProject,
       openSubprojModal,
       closeProjModal,
       saveProject,

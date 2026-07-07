@@ -36,18 +36,20 @@
   --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
   --ease-decelerate: cubic-bezier(0, 0, 0.2, 1);
 
-  --focus-ring: 0 0 0 3px rgba(229, 72, 77, 0.32);
+  --focus-ring: 0 0 0 3px rgba(var(--primary-rgb), 0.32);
 
   /* ===== Override primário (vermelho) — app ===== */
+  /* Base RGB do accent — todas as tintas rgba(...) derivam daqui. */
+  --primary-rgb: 229, 72, 77;
   --primary: #e5484d;
   --primary-light: #ff6369;
   --primary-dark: #b02a30;
   --primary-hover: #ec5a5f;
-  --primary-subtle: rgba(229, 72, 77, 0.1);
+  --primary-subtle: rgba(var(--primary-rgb), 0.1);
   --gradient-primary: linear-gradient(135deg, #e5484d 0%, #b02a30 100%);
   --gradient-primary-hover: linear-gradient(135deg, #ff6369 0%, #e5484d 100%);
-  --glow-primary: 0 0 22px rgba(229, 72, 77, 0.3);
-  --border: rgba(229, 72, 77, 0.3);
+  --glow-primary: 0 0 22px rgba(var(--primary-rgb), 0.3);
+  --border: rgba(var(--primary-rgb), 0.3);
 
   /* ===== Tipografia (IBM Plex Mono) ===== */
   --font-primary: 'IBM Plex Mono', ui-monospace, monospace;
@@ -74,16 +76,17 @@
   --info: #0d8fa8;
 
   /* Override primário (vermelho, tom claro) */
+  --primary-rgb: 196, 52, 46;
   --primary: #c4342e;
   --primary-light: #d9463f;
   --primary-dark: #96201b;
   --primary-hover: #b32e28;
-  --primary-subtle: rgba(196, 52, 46, 0.1);
+  --primary-subtle: rgba(var(--primary-rgb), 0.1);
   --gradient-primary: linear-gradient(135deg, #c4342e 0%, #96201b 100%);
   --gradient-primary-hover: linear-gradient(135deg, #d9463f 0%, #c4342e 100%);
-  --glow-primary: 0 0 20px rgba(196, 52, 46, 0.2);
-  --border: rgba(196, 52, 46, 0.3);
-  --focus-ring: 0 0 0 3px rgba(196, 52, 46, 0.28);
+  --glow-primary: 0 0 20px rgba(var(--primary-rgb), 0.2);
+  --border: rgba(var(--primary-rgb), 0.3);
+  --focus-ring: 0 0 0 3px rgba(var(--primary-rgb), 0.28);
 }
 
 * {
@@ -115,11 +118,11 @@ button {
   height: 8px;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(229, 72, 77, 0.35);
+  background: rgba(var(--primary-rgb), 0.35);
   border-radius: 999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(229, 72, 77, 0.55);
+  background: rgba(var(--primary-rgb), 0.55);
 }
 ::-webkit-scrollbar-track {
   background: transparent;
@@ -299,7 +302,7 @@ button {
   margin: 26px 0;
 }
 .md-body mark {
-  background: rgba(229, 72, 77, 0.32);
+  background: rgba(var(--primary-rgb), 0.32);
   color: var(--text);
   border-radius: 3px;
   padding: 0 2px;

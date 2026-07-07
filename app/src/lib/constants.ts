@@ -19,7 +19,7 @@ export const cats: Category[] = [
 ]
 
 export const catColors = {
-  gold: { bg: 'rgba(229,72,77,0.14)', fg: '#FF7A7E' },
+  gold: { bg: 'rgba(var(--primary-rgb),0.14)', fg: '#FF7A7E' },
   blue: { bg: 'rgba(33,150,243,0.12)', fg: '#64B5F6' },
   green: { bg: 'rgba(76,175,80,0.12)', fg: '#81C784' },
   purple: { bg: 'rgba(124,58,237,0.14)', fg: '#A78BFA' },
